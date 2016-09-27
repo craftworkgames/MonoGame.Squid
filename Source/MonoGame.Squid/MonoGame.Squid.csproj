@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Framework.Portable.3.2.99.1-Beta\lib\portable-net45+win+wpa81+Xamarin.iOS10+MonoAndroid10+MonoTouch10\MonoGame.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -67,12 +71,14 @@
     <Compile Include="Controls\TreeView.cs" />
     <Compile Include="Controls\Window.cs" />
     <Compile Include="Gui.cs" />
+    <Compile Include="MonoGameSquidInputManager.cs" />
     <Compile Include="Interfaces\ICheckable.cs" />
     <Compile Include="Interfaces\IControlContainer.cs" />
     <Compile Include="Interfaces\ISelectable.cs" />
     <Compile Include="Interfaces\ISquidRenderer.cs" />
     <Compile Include="Interfaces\IText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MonoGameSquidRenderer.cs" />
     <Compile Include="Skinning\ControlStyle.cs" />
     <Compile Include="Skinning\Skin.cs" />
     <Compile Include="Skinning\Style.cs" />
@@ -99,6 +105,9 @@
     <Compile Include="Xml\XmlReader.cs" />
     <Compile Include="Xml\XmlSerializer.cs" />
     <Compile Include="Xml\XmlWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
