@@ -13,4 +13,4 @@ The original source code can be found [on github](https://github.com/Roderik11/S
 
 This fork adds a renderer for MonoGame.
 
-![Demo](Screenshots/screenshot-large.png)
+![Demo](Screenshots/screenshot-half.png)
