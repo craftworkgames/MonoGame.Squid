@@ -12,3 +12,5 @@ Squid was [made open source](http://ionstar.org/forum/index.php?PHPSESSID=ie2s5i
 The original source code can be found [on github](https://github.com/Roderik11/Squid).
 
 This fork adds a renderer for MonoGame.
+
+![Demo](Screenshots/screenshot-large.png)

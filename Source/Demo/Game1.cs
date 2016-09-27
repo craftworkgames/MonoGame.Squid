@@ -19,8 +19,8 @@ namespace Demo
         {
             _graphics = new GraphicsDeviceManager(this)
             {
-                PreferredBackBufferHeight = 1050,
-                PreferredBackBufferWidth = 1600,
+                PreferredBackBufferHeight = 800,
+                PreferredBackBufferWidth = 1440,
                 SynchronizeWithVerticalRetrace = false
             };
             _graphics.ApplyChanges();
