@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8609DEBC-B32D-4DA2-9B38-EA58142498B9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonoGame.Squid</RootNamespace>
+    <AssemblyName>MonoGame.Squid</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\Control.cs" />
+    <Compile Include="Controls\Desktop.cs" />
+    <Compile Include="Controls\Dialog.cs" />
+    <Compile Include="Controls\DropDownButton.cs" />
+    <Compile Include="Controls\DropDownList.cs" />
+    <Compile Include="Controls\FlowLayoutFrame.cs" />
+    <Compile Include="Controls\Frame.cs" />
+    <Compile Include="Controls\ImageControl.cs" />
+    <Compile Include="Controls\Label.cs" />
+    <Compile Include="Controls\ListBox.cs" />
+    <Compile Include="Controls\ListView.cs" />
+    <Compile Include="Controls\Panel.cs" />
+    <Compile Include="Controls\RadioButton.cs" />
+    <Compile Include="Controls\Resizer.cs" />
+    <Compile Include="Controls\ScrollBar.cs" />
+    <Compile Include="Controls\SimpleTooltip.cs" />
+    <Compile Include="Controls\Slider.cs" />
+    <Compile Include="Controls\SplitContainer.cs" />
+    <Compile Include="Controls\TabControl.cs" />
+    <Compile Include="Controls\TextArea.cs" />
+    <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="Controls\Tooltip.cs" />
+    <Compile Include="Controls\TreeView.cs" />
+    <Compile Include="Controls\Window.cs" />
+    <Compile Include="Gui.cs" />
+    <Compile Include="Interfaces\ICheckable.cs" />
+    <Compile Include="Interfaces\IControlContainer.cs" />
+    <Compile Include="Interfaces\ISelectable.cs" />
+    <Compile Include="Interfaces\ISquidRenderer.cs" />
+    <Compile Include="Interfaces\IText.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Skinning\ControlStyle.cs" />
+    <Compile Include="Skinning\Skin.cs" />
+    <Compile Include="Skinning\Style.cs" />
+    <Compile Include="Structs\Enums.cs" />
+    <Compile Include="Structs\EventArgs.cs" />
+    <Compile Include="Structs\KeyData.cs" />
+    <Compile Include="Structs\Keys.cs" />
+    <Compile Include="Structs\Margin.cs" />
+    <Compile Include="Structs\Point.cs" />
+    <Compile Include="Structs\Rectangle.cs" />
+    <Compile Include="Util\ActionList.cs" />
+    <Compile Include="Util\ActiveList.cs" />
+    <Compile Include="Util\Attributes.cs" />
+    <Compile Include="Util\BBCode.cs" />
+    <Compile Include="Util\ColorInt.cs" />
+    <Compile Include="Util\ControlCollection.cs" />
+    <Compile Include="Util\Cursor.cs" />
+    <Compile Include="Util\CursorNames.cs" />
+    <Compile Include="Util\Easing.cs" />
+    <Compile Include="Util\Flipbook.cs" />
+    <Compile Include="Util\Font.cs" />
+    <Compile Include="Util\RectanglePacker.cs" />
+    <Compile Include="Util\Reflector.cs" />
+    <Compile Include="Xml\XmlReader.cs" />
+    <Compile Include="Xml\XmlSerializer.cs" />
+    <Compile Include="Xml\XmlWriter.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
