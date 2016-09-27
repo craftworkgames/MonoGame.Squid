@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Squid
+﻿namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// Standard cursor type strings.
@@ -29,19 +25,19 @@ namespace Squid
         /// <summary>
         /// The size NESW
         /// </summary>
-        public static readonly string SizeNESW = "sizeNESW";
+        public static readonly string SizeNesw = "sizeNESW";
         /// <summary>
         /// The size NS
         /// </summary>
-        public static readonly string SizeNS = "sizeNS";
+        public static readonly string SizeNs = "sizeNS";
         /// <summary>
         /// The size NWSE
         /// </summary>
-        public static readonly string SizeNWSE = "sizeNWSE";
+        public static readonly string SizeNwse = "sizeNWSE";
         /// <summary>
         /// The size WE
         /// </summary>
-        public static readonly string SizeWE = "sizeWE";
+        public static readonly string SizeWe = "sizeWE";
         /// <summary>
         /// The select
         /// </summary>

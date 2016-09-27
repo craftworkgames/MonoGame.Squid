@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A Window
@@ -11,9 +12,9 @@ namespace Squid
     [Toolbox]
     public class Window : Control, IControlContainer
     {
-        private Resizer Sizer;
-        private Point ClickedPos;
-        private bool IsDragging;
+        private readonly Resizer _sizer;
+        private Point _clickedPos;
+        private bool _isDragging;
 
         [Hidden]
         public ControlCollection Controls { get; set; }
@@ -46,17 +47,17 @@ namespace Squid
         [Category("Behavior")]
         public bool Resizable
         {
-            get { return Sizer.ParentControl == this; }
+            get { return _sizer.ParentControl == this; }
             set
             {
                 if (value)
                 {
-                    if (Sizer.ParentControl != this)
-                        Elements.Add(Sizer);
+                    if (_sizer.ParentControl != this)
+                        Elements.Add(_sizer);
                 }
                 else
                 {
-                    Elements.Remove(Sizer);
+                    Elements.Remove(_sizer);
                 }
             }
         }
@@ -68,8 +69,8 @@ namespace Squid
         [Category("Behavior")]
         public Margin GripSize
         {
-            get { return Sizer.GripSize; }
-            set { Sizer.GripSize = value; }
+            get { return _sizer.GripSize; }
+            set { _sizer.GripSize = value; }
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace Squid
         {
             base.OnUpdate();
 
-            if (IsDragging)
+            if (_isDragging)
                 Drag();
         }
 
@@ -90,8 +91,8 @@ namespace Squid
         {
             Style = "window";
             Scissor = true;
-            Sizer = new Resizer();
-            Sizer.Dock = DockStyle.Fill;
+            _sizer = new Resizer();
+            _sizer.Dock = DockStyle.Fill;
             SnapDistance = 12;
 
             MinSize = new Point(200, 100);
@@ -102,8 +103,8 @@ namespace Squid
         {
             if (Modal)
             {
-                SetScissor(0, 0, Desktop.Size.x, Desktop.Size.y);
-                Gui.Renderer.DrawBox(0, 0, Desktop.Size.x, Desktop.Size.y, ColorInt.FromArgb(GetOpacity(1), Desktop.ModalColor));
+                SetScissor(0, 0, Desktop.Size.X, Desktop.Size.Y);
+                Gui.Renderer.DrawBox(0, 0, Desktop.Size.X, Desktop.Size.Y, ColorInt.FromArgb(GetOpacity(1), Desktop.ModalColor));
                 ResetScissor();
             }
 
@@ -115,8 +116,8 @@ namespace Squid
         /// </summary>
         public void StartDrag()
         {
-            ClickedPos = Gui.MousePosition - Position;
-            IsDragging = true;
+            _clickedPos = Gui.MousePosition - Position;
+            _isDragging = true;
         }
 
         /// <summary>
@@ -124,62 +125,62 @@ namespace Squid
         /// </summary>
         public void StopDrag()
         {
-            IsDragging = false;
+            _isDragging = false;
         }
 
         private void Drag()
         {
-            Point p = Gui.MousePosition - ClickedPos;
+            var p = Gui.MousePosition - _clickedPos;
 
             if (!Modal)
             {
-                foreach (Control win in Container.Controls)
+                foreach (var win in Container.Controls)
                 {
                     if (!(win is Window)) continue;
                     if (win == this) continue;
 
-                    int top = win.Position.y;
-                    int bottom = win.Position.y + win.Size.y;
-                    int left = win.Position.x;
-                    int right = win.Position.x + win.Size.x;
+                    var top = win.Position.Y;
+                    var bottom = win.Position.Y + win.Size.Y;
+                    var left = win.Position.X;
+                    var right = win.Position.X + win.Size.X;
 
-                    if (Math.Abs(p.x - right) <= SnapDistance)
+                    if (Math.Abs(p.X - right) <= SnapDistance)
                     {
-                        if (!(p.y + Size.y < top) && !(p.y > bottom))
-                            p.x = right;
+                        if (!(p.Y + Size.Y < top) && !(p.Y > bottom))
+                            p.X = right;
                     }
 
-                    if (Math.Abs(p.x + Size.x - left) <= SnapDistance)
+                    if (Math.Abs(p.X + Size.X - left) <= SnapDistance)
                     {
-                        if (!(p.y + Size.y < top) && !(p.y > bottom))
-                            p.x = left - Size.x;
+                        if (!(p.Y + Size.Y < top) && !(p.Y > bottom))
+                            p.X = left - Size.X;
                     }
 
-                    if (Math.Abs(p.y - bottom) <= SnapDistance)
+                    if (Math.Abs(p.Y - bottom) <= SnapDistance)
                     {
-                        if (!(p.x + Size.x < left) && !(p.x > right))
-                            p.y = bottom;
+                        if (!(p.X + Size.X < left) && !(p.X > right))
+                            p.Y = bottom;
                     }
 
-                    if (Math.Abs(p.y + Size.y - top) <= SnapDistance)
+                    if (Math.Abs(p.Y + Size.Y - top) <= SnapDistance)
                     {
-                        if (!(p.x + Size.x < left) && !(p.x > right))
-                            p.y = top - Size.y;
+                        if (!(p.X + Size.X < left) && !(p.X > right))
+                            p.Y = top - Size.Y;
                     }
                 }
             }
 
             if (!AllowDragOut)
             {
-                if (p.x < 0) p.x = 0;
-                if (p.y < 0) p.y = 0;
-                if (p.x + Size.x > Parent.Size.x) p.x = Parent.Size.x - Size.x;
-                if (p.y + Size.y > Parent.Size.y) p.y = Parent.Size.y - Size.y;
+                if (p.X < 0) p.X = 0;
+                if (p.Y < 0) p.Y = 0;
+                if (p.X + Size.X > Parent.Size.X) p.X = Parent.Size.X - Size.X;
+                if (p.Y + Size.Y > Parent.Size.Y) p.Y = Parent.Size.Y - Size.Y;
 
-                if (p.x < SnapDistance) p.x = 0;
-                if (p.y < SnapDistance) p.y = 0;
-                if (p.x + Size.x > Parent.Size.x - SnapDistance) p.x = Parent.Size.x - Size.x;
-                if (p.y + Size.y > Parent.Size.y - SnapDistance) p.y = Parent.Size.y - Size.y;
+                if (p.X < SnapDistance) p.X = 0;
+                if (p.Y < SnapDistance) p.Y = 0;
+                if (p.X + Size.X > Parent.Size.X - SnapDistance) p.X = Parent.Size.X - Size.X;
+                if (p.Y + Size.Y > Parent.Size.Y - SnapDistance) p.Y = Parent.Size.Y - Size.Y;
             }
 
             Position = p;

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A container with scrollbars
@@ -83,23 +83,23 @@ namespace Squid
         {
             base.OnUpdate();
 
-            Point position = Point.Zero;
+            var position = Point.Zero;
 
-            if (Content.Size.x < ClipFrame.Size.x || Content.AutoSize == Squid.AutoSize.Vertical)
-                Content.Size = new Point(ClipFrame.Size.x, Content.Size.y);
+            if (Content.Size.X < ClipFrame.Size.X || Content.AutoSize == AutoSize.Vertical)
+                Content.Size = new Point(ClipFrame.Size.X, Content.Size.Y);
 
-            if (Content.Size.y < ClipFrame.Size.y || Content.AutoSize == Squid.AutoSize.Horizontal)
-                Content.Size = new Point(Content.Size.x, ClipFrame.Size.y);
+            if (Content.Size.Y < ClipFrame.Size.Y || Content.AutoSize == AutoSize.Horizontal)
+                Content.Size = new Point(Content.Size.X, ClipFrame.Size.Y);
 
-            if (!VScroll.ShowAlways && Content.Size.y <= ClipFrame.Size.y)
+            if (!VScroll.ShowAlways && Content.Size.Y <= ClipFrame.Size.Y)
             {
                 VScroll.Visible = false;
             }
             else
             {
                 VScroll.Visible = true;
-                VScroll.Scale = Math.Min(1, (float)ClipFrame.Size.y / (float)Content.Size.y);
-                position.y = (int)((ClipFrame.Size.y - Content.Size.y) * VScroll.EasedValue);
+                VScroll.Scale = Math.Min(1, (float)ClipFrame.Size.Y / (float)Content.Size.Y);
+                position.Y = (int)((ClipFrame.Size.Y - Content.Size.Y) * VScroll.EasedValue);
 
                 //hack
                 if (VScroll.ShowAlways)
@@ -108,15 +108,15 @@ namespace Squid
                     VScroll.Slider.Visible = true;
             }
 
-            if (!HScroll.ShowAlways && Content.Size.x <= ClipFrame.Size.x)
+            if (!HScroll.ShowAlways && Content.Size.X <= ClipFrame.Size.X)
             {
                 HScroll.Visible = false;
             }
             else
             {
                 HScroll.Visible = true;
-                HScroll.Scale = Math.Min(1, (float)ClipFrame.Size.x / (float)Content.Size.x);
-                position.x = (int)((ClipFrame.Size.x - Content.Size.x) * HScroll.EasedValue);
+                HScroll.Scale = Math.Min(1, (float)ClipFrame.Size.X / (float)Content.Size.X);
+                position.X = (int)((ClipFrame.Size.X - Content.Size.X) * HScroll.EasedValue);
             }
 
             Content.Position = position;

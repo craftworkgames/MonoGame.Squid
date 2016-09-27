@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A DropDownList
@@ -11,7 +10,7 @@ namespace Squid
     public class DropDownList : Control
     {
         private ListBoxItem _selectedItem;
-        private bool WasOpenOnce;
+        private bool _wasOpenOnce;
 
         /// <summary>
         /// Raised when [selected item changed].
@@ -165,22 +164,22 @@ namespace Squid
         {
             if (OnOpening != null)
             {
-                SquidEventArgs args = new SquidEventArgs();
+                var args = new SquidEventArgs();
                 OnOpening(this, args);
                 if (args.Cancel) return;
             }
 
-            if (!WasOpenOnce)
+            if (!_wasOpenOnce)
             {
                 if (DropdownAutoSize)
-                    Dropdown.Size = new Point(Size.x, DropdownSize.y);
+                    Dropdown.Size = new Point(Size.X, DropdownSize.Y);
                 else
-                    Dropdown.Size = new Point(DropdownSize.x, DropdownSize.y);
+                    Dropdown.Size = new Point(DropdownSize.X, DropdownSize.Y);
 
-                WasOpenOnce = true;
+                _wasOpenOnce = true;
             }
 
-            Dropdown.Position = Location + new Point(0, Size.y);
+            Dropdown.Position = Location + new Point(0, Size.Y);
 
             Desktop.ShowDropdown(Dropdown, false);
             IsOpen = true;
@@ -195,7 +194,7 @@ namespace Squid
 
             if (OnClosing != null)
             {
-                SquidEventArgs args = new SquidEventArgs();
+                var args = new SquidEventArgs();
                 OnClosing(this, args);
                 if (args.Cancel) return;
             }

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// Used to indicate a multiline string to external editors

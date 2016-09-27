@@ -1,7 +1,9 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A Button
@@ -43,7 +45,7 @@ namespace Squid
 
                 if (BeforeCheckedChanged != null)
                 {
-                    SquidEventArgs args = new SquidEventArgs();
+                    var args = new SquidEventArgs();
                     BeforeCheckedChanged(this, args);
                     if (args.Cancel) return;
                 }

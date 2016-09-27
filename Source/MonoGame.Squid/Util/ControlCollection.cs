@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using MonoGame.Squid.Controls;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// A collection of controls. This class requires a parent Control.
@@ -11,16 +11,16 @@ namespace Squid
     {
         internal bool IsLocked;
 
-        private bool dirtyAdd;
-        private bool dirtyRemove;
+        private bool _dirtyAdd;
+        private bool _dirtyRemove;
 
-        private List<Control> toAdd = new List<Control>();
+        private readonly List<Control> _toAdd = new List<Control>();
 
         internal void Cleanup()
         {
-            if (dirtyAdd)
+            if (_dirtyAdd)
             {
-                foreach (Control c in toAdd)
+                foreach (var c in _toAdd)
                 {
                     base.Add(c);
 
@@ -29,24 +29,24 @@ namespace Squid
                     c.ParentControl = Parent;
                 }
 
-                toAdd.Clear();
-                dirtyAdd = false;
+                _toAdd.Clear();
+                _dirtyAdd = false;
             }
 
-            if (dirtyRemove)
+            if (_dirtyRemove)
             {
-                int count = Count;
-                for (int i = count - 1; i >= 0; i--)
+                var count = Count;
+                for (var i = count - 1; i >= 0; i--)
                 {
                     if (this[i].IsRemoved)
                     {
-                        Control child = this[i];
+                        var child = this[i];
                         this.RemoveAt(i);
                         child.Parent = null;
                     }
                 }
 
-                dirtyRemove = false;
+                _dirtyRemove = false;
             }
         }
 
@@ -63,7 +63,7 @@ namespace Squid
 
         void Items_BeforeItemsCleared(object sender, EventArgs e)
         {
-            foreach (Control control in this)
+            foreach (var control in this)
                 control.ParentControl = null;
         }
 
@@ -84,7 +84,7 @@ namespace Squid
             }
 
             e.Item.IsRemoved = true;
-            dirtyRemove = true;
+            _dirtyRemove = true;
 
             if (IsLocked)
                 e.Cancel = true;
@@ -122,8 +122,8 @@ namespace Squid
             if (IsLocked)
             {
                 e.Cancel = true;
-                toAdd.Add(e.Item);
-                dirtyAdd = true;
+                _toAdd.Add(e.Item);
+                _dirtyAdd = true;
                 return;
             }
 
@@ -139,16 +139,16 @@ namespace Squid
     {
         internal bool IsLocked;
 
-        private bool dirtyAdd;
-        private bool dirtyRemove;
+        private bool _dirtyAdd;
+        private bool _dirtyRemove;
 
-        private List<Control> toAdd = new List<Control>();
+        private readonly List<Control> _toAdd = new List<Control>();
 
         internal void Cleanup()
         {
-            if (dirtyAdd)
+            if (_dirtyAdd)
             {
-                foreach (Control c in toAdd)
+                foreach (var c in _toAdd)
                 {
                     base.Add(c);
 
@@ -157,24 +157,24 @@ namespace Squid
                     c.ParentControl = Parent;
                 }
 
-                toAdd.Clear();
-                dirtyAdd = false;
+                _toAdd.Clear();
+                _dirtyAdd = false;
             }
 
-            if (dirtyRemove)
+            if (_dirtyRemove)
             {
-                int count = Count;
-                for (int i = count - 1; i >= 0; i--)
+                var count = Count;
+                for (var i = count - 1; i >= 0; i--)
                 {
                     if (this[i].IsRemoved)
                     {
-                        Control child = this[i];
+                        var child = this[i];
                         this.RemoveAt(i);
                         child.ParentControl = null;
                     }
                 }
 
-                dirtyRemove = false;
+                _dirtyRemove = false;
             }
         }
 
@@ -191,7 +191,7 @@ namespace Squid
 
         void Items_BeforeItemsCleared(object sender, EventArgs e)
         {
-            foreach (Control control in this)
+            foreach (var control in this)
                 control.ParentControl = null;
         }
 
@@ -212,7 +212,7 @@ namespace Squid
             }
 
             e.Item.IsRemoved = true;
-            dirtyRemove = true;
+            _dirtyRemove = true;
 
             if (IsLocked)
                 e.Cancel = true;
@@ -247,8 +247,8 @@ namespace Squid
             if (IsLocked)
             {
                 e.Cancel = true;
-                toAdd.Add(e.Item);
-                dirtyAdd = true;
+                _toAdd.Add(e.Item);
+                _dirtyAdd = true;
                 return;
             }
 

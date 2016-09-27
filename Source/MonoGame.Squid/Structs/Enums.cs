@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Squid
+namespace MonoGame.Squid.Structs
 {
     /// <summary>
     /// Enum ButtonState
@@ -89,7 +87,7 @@ namespace Squid
         /// <summary>
         /// The OK
         /// </summary>
-        OK,
+        Ok,
         /// <summary>
         /// The cancel
         /// </summary>
@@ -179,7 +177,7 @@ namespace Squid
         /// <summary>
         /// The axis XY
         /// </summary>
-        AxisXY
+        AxisXy
     }
 
     /// <summary>

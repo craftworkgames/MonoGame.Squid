@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using MonoGame.Squid.Structs;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// A collection of Cursors
@@ -58,17 +57,17 @@ namespace Squid
         /// <param name="y">The y.</param>
         public virtual void Draw(int x, int y)
         {
-            int texture = Gui.Renderer.GetTexture(Texture);
+            var texture = Gui.Renderer.GetTexture(Texture);
             if (texture < 0) return;
 
             if (TextureRect.IsEmpty())
             {
-                Point texsize = Gui.Renderer.GetTextureSize(texture);
+                var texsize = Gui.Renderer.GetTextureSize(texture);
                 TextureRect = new Rectangle(Point.Zero, texsize);
             }
 
-            Point p = new Point(x, y) - HotSpot;
-            Gui.Renderer.DrawTexture(texture, p.x, p.y, Size.x, Size.y, TextureRect, Color);
+            var p = new Point(x, y) - HotSpot;
+            Gui.Renderer.DrawTexture(texture, p.X, p.Y, Size.X, Size.Y, TextureRect, Color);
         }
     }
 
@@ -96,7 +95,7 @@ namespace Squid
         /// <summary>
         /// The flip
         /// </summary>
-        private Flipbook flip = new Flipbook();
+        private readonly Flipbook _flip = new Flipbook();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FlipbookCursor"/> class.
@@ -116,15 +115,15 @@ namespace Squid
         /// <param name="y">The y.</param>
         public override void Draw(int x, int y)
         {
-            int index = Gui.Renderer.GetTexture(Texture);
+            var index = Gui.Renderer.GetTexture(Texture);
             if (index < 0) return;
 
-            Point p = new Point(x, y) - HotSpot;
+            var p = new Point(x, y) - HotSpot;
 
-            flip.Speed = Speed;
-            flip.Rows = Rows;
-            flip.Columns = Columns;
-            flip.Draw(index, p.x, p.y, Size.x, Size.y, Color);       
+            _flip.Speed = Speed;
+            _flip.Rows = Rows;
+            _flip.Columns = Columns;
+            _flip.Draw(index, p.X, p.Y, Size.X, Size.Y, Color);       
         }
     }
 }

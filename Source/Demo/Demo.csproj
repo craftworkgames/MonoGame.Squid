@@ -42,6 +42,17 @@
     <Compile Include="Game1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SampleControls\Atlas.cs" />
+    <Compile Include="SampleControls\ChatBox.cs" />
+    <Compile Include="SampleControls\FileDialog.cs" />
+    <Compile Include="SampleControls\GameGui.cs" />
+    <Compile Include="SampleControls\Gridview\GridColumn.cs" />
+    <Compile Include="SampleControls\Gridview\GridView.cs" />
+    <Compile Include="SampleControls\Gridview\GridViewItem.cs" />
+    <Compile Include="SampleControls\MessageBox.cs" />
+    <Compile Include="SampleControls\SampleDesktop.cs" />
+    <Compile Include="SampleControls\SampleWindow.cs" />
+    <Compile Include="SampleScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

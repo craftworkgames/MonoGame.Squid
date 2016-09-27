@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using MonoGame.Squid.Skinning;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A control that show a texture
@@ -70,13 +70,13 @@ namespace Squid
         {
             base.DrawStyle(style, opacity);
 
-            int texture = Gui.Renderer.GetTexture(Texture);
+            var texture = Gui.Renderer.GetTexture(Texture);
             if (texture < 0) return;
 
             if(ColorByTint)
                 Color = style.Tint;
 
-            int color = Color;
+            var color = Color;
 
             if(Tint != -1)
                 color = ColorInt.Blend(Tint, color);
@@ -85,7 +85,7 @@ namespace Squid
 
             if (TextureRect.IsEmpty())
             {
-                Point texsize = Gui.Renderer.GetTextureSize(texture);
+                var texsize = Gui.Renderer.GetTextureSize(texture);
                 TextureRect = new Rectangle(Point.Zero, texsize);
             }
 
@@ -100,15 +100,15 @@ namespace Squid
             }
             else if (Tiling == TextureMode.Stretch)
             {
-                Gui.Renderer.DrawTexture(texture, Location.x + Inset.Left, Location.y + Inset.Top, Size.x - (Inset.Left + Inset.Right), Size.y - (Inset.Top + Inset.Bottom), TextureRect, color);
+                Gui.Renderer.DrawTexture(texture, Location.X + Inset.Left, Location.Y + Inset.Top, Size.X - (Inset.Left + Inset.Right), Size.Y - (Inset.Top + Inset.Bottom), TextureRect, color);
             }
             else if (Tiling == TextureMode.Center)
             {
-                Point center = Location + Size / 2;
-                Point rectsize = new Point(TextureRect.Width, TextureRect.Height);
-                Point pos = center - rectsize / 2;
+                var center = Location + Size / 2;
+                var rectsize = new Point(TextureRect.Width, TextureRect.Height);
+                var pos = center - rectsize / 2;
 
-                Gui.Renderer.DrawTexture(texture, pos.x, pos.y, rectsize.x, rectsize.y, TextureRect, color);
+                Gui.Renderer.DrawTexture(texture, pos.X, pos.Y, rectsize.X, rectsize.Y, TextureRect, color);
             }
             else
             {

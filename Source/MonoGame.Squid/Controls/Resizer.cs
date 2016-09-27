@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// Delegate ResizeHandler
@@ -30,8 +29,8 @@ namespace Squid
         public Control BottomRight { get; private set; }
 
         private Margin _grip = new Margin(8);
-        private Point ClickedPos;
-        private Point OldSize;
+        private Point _clickedPos;
+        private Point _oldSize;
 
         public event MouseEvent GripDown;
         public event MouseEvent GripUp;
@@ -60,7 +59,7 @@ namespace Squid
             Left.MousePress += Grip_OnPress;
             Left.MouseUp += Grip_OnUp;
             Left.Tag = AnchorStyles.Left;
-            Left.Cursor = CursorNames.SizeWE;
+            Left.Cursor = CursorNames.SizeWe;
             Elements.Add(Left);
 
             Top = new Control();
@@ -70,7 +69,7 @@ namespace Squid
             Top.MousePress += Grip_OnPress;
             Top.MouseUp += Grip_OnUp;
             Top.Tag = AnchorStyles.Top;
-            Top.Cursor = CursorNames.SizeNS;
+            Top.Cursor = CursorNames.SizeNs;
             Elements.Add(Top);
 
             Right = new Control();
@@ -80,7 +79,7 @@ namespace Squid
             Right.MousePress += Grip_OnPress;
             Right.MouseUp += Grip_OnUp;
             Right.Tag = AnchorStyles.Right;
-            Right.Cursor = CursorNames.SizeWE;
+            Right.Cursor = CursorNames.SizeWe;
             Elements.Add(Right);
 
             Bottom = new Control();
@@ -90,7 +89,7 @@ namespace Squid
             Bottom.MousePress += Grip_OnPress;
             Bottom.MouseUp += Grip_OnUp;
             Bottom.Tag = AnchorStyles.Bottom;
-            Bottom.Cursor = CursorNames.SizeNS;
+            Bottom.Cursor = CursorNames.SizeNs;
             Elements.Add(Bottom);
 
             TopLeft = new Control();
@@ -100,40 +99,40 @@ namespace Squid
             TopLeft.MousePress += Grip_OnPress;
             TopLeft.MouseUp += Grip_OnUp;
             TopLeft.Tag = AnchorStyles.Top | AnchorStyles.Left;
-            TopLeft.Cursor = CursorNames.SizeNWSE;
+            TopLeft.Cursor = CursorNames.SizeNwse;
             Elements.Add(TopLeft);
 
             TopRight = new Control();
             TopRight.Size = new Point(4, 4);
-            TopRight.Position = new Point(Size.x - 4, 0);
+            TopRight.Position = new Point(Size.X - 4, 0);
             TopRight.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             TopRight.MouseDown += Grip_OnDown;
             TopRight.MousePress += Grip_OnPress;
             TopRight.MouseUp += Grip_OnUp;
             TopRight.Tag = AnchorStyles.Top | AnchorStyles.Right;
-            TopRight.Cursor = CursorNames.SizeNESW;
+            TopRight.Cursor = CursorNames.SizeNesw;
             Elements.Add(TopRight);
 
             BottomLeft = new Control();
             BottomLeft.Size = new Point(4, 4);
-            BottomLeft.Position = new Point(0, Size.y - 4);
+            BottomLeft.Position = new Point(0, Size.Y - 4);
             BottomLeft.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             BottomLeft.MouseDown += Grip_OnDown;
             BottomLeft.MousePress += Grip_OnPress;
             BottomLeft.MouseUp += Grip_OnUp;
             BottomLeft.Tag = AnchorStyles.Bottom | AnchorStyles.Left;
-            BottomLeft.Cursor = CursorNames.SizeNESW;
+            BottomLeft.Cursor = CursorNames.SizeNesw;
             Elements.Add(BottomLeft);
 
             BottomRight = new Control();
             BottomRight.Size = new Point(8, 8);
-            BottomRight.Position = new Point(Size.x - 8, Size.y - 8);
+            BottomRight.Position = new Point(Size.X - 8, Size.Y - 8);
             BottomRight.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             BottomRight.MouseDown += Grip_OnDown;
             BottomRight.MousePress += Grip_OnPress;
             BottomRight.MouseUp += Grip_OnUp;
             BottomRight.Tag = AnchorStyles.Bottom | AnchorStyles.Right;
-            BottomRight.Cursor = CursorNames.SizeNWSE;
+            BottomRight.Cursor = CursorNames.SizeNwse;
             Elements.Add(BottomRight);
 
             Adjust();
@@ -150,21 +149,21 @@ namespace Squid
             TopLeft.Position = new Point(0, 0);
 
             TopRight.Size = new Point(_grip.Right, _grip.Top);
-            TopRight.Position = new Point(Size.x - _grip.Right, 0);
+            TopRight.Position = new Point(Size.X - _grip.Right, 0);
 
             BottomLeft.Size = new Point(_grip.Left, _grip.Bottom);
-            BottomLeft.Position = new Point(0, Size.y - _grip.Bottom);
+            BottomLeft.Position = new Point(0, Size.Y - _grip.Bottom);
 
             BottomRight.Size = new Point(_grip.Right, _grip.Bottom);
-            BottomRight.Position = new Point(Size.x - _grip.Right, Size.y - _grip.Bottom);
+            BottomRight.Position = new Point(Size.X - _grip.Right, Size.Y - _grip.Bottom);
         }
 
         void Grip_OnDown(Control sender, MouseEventArgs args)
         {
             if (args.Button > 0) return;
 
-            ClickedPos = Gui.MousePosition;
-            OldSize = Parent.Size;
+            _clickedPos = Gui.MousePosition;
+            _oldSize = Parent.Size;
 
             if (GripDown != null)
                 GripDown(sender, args);
@@ -182,20 +181,20 @@ namespace Squid
         {
             if (args.Button > 0) return;
 
-            Point p = Gui.MousePosition - ClickedPos;
+            var p = Gui.MousePosition - _clickedPos;
 
-            Point position = Parent.Position;
-            Point size = Parent.Size;
+            var position = Parent.Position;
+            var size = Parent.Size;
 
-            AnchorStyles anchor = (AnchorStyles) sender.Tag;
+            var anchor = (AnchorStyles) sender.Tag;
 
             if ((anchor & AnchorStyles.Left) == AnchorStyles.Left)
-                p.x = ClickedPos.x - Gui.MousePosition.x;
+                p.X = _clickedPos.X - Gui.MousePosition.X;
             
             if ((anchor & AnchorStyles.Top) == AnchorStyles.Top)
-                p.y = ClickedPos.y - Gui.MousePosition.y;
+                p.Y = _clickedPos.Y - Gui.MousePosition.Y;
 
-            Parent.ResizeTo(OldSize + p, anchor);
+            Parent.ResizeTo(_oldSize + p, anchor);
 
             if (Resized != null)
                 Resized(this, Parent.Size - size, Parent.Position - position);

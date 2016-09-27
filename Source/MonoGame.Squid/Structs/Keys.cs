@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Squid
+﻿namespace MonoGame.Squid.Structs
 {
     /// <summary>
     /// Enum Keys
@@ -12,7 +8,7 @@ namespace Squid
         /// <summary>
         /// The ESCAPE
         /// </summary>
-        ESCAPE = 1,
+        Escape = 1,
         /// <summary>
         /// The d1
         /// </summary>
@@ -56,7 +52,7 @@ namespace Squid
         /// <summary>
         /// The MINUS
         /// </summary>
-        MINUS = 12,
+        Minus = 12,
         /// <summary>
         /// The EQUALS
         /// </summary>
@@ -64,11 +60,11 @@ namespace Squid
         /// <summary>
         /// The BACKSPACE
         /// </summary>
-        BACKSPACE = 14,
+        Backspace = 14,
         /// <summary>
         /// The TAB
         /// </summary>
-        TAB = 15,
+        Tab = 15,
         /// <summary>
         /// The Q
         /// </summary>
@@ -112,19 +108,19 @@ namespace Squid
         /// <summary>
         /// The LEFTBRACKET
         /// </summary>
-        LEFTBRACKET = 26,
+        Leftbracket = 26,
         /// <summary>
         /// The RIGHTBRACKET
         /// </summary>
-        RIGHTBRACKET = 27,
+        Rightbracket = 27,
         /// <summary>
         /// The RETURN
         /// </summary>
-        RETURN = 28,
+        Return = 28,
         /// <summary>
         /// The LEFTCONTROL
         /// </summary>
-        LEFTCONTROL = 29,
+        Leftcontrol = 29,
         /// <summary>
         /// The A
         /// </summary>
@@ -164,23 +160,23 @@ namespace Squid
         /// <summary>
         /// The SEMICOLON
         /// </summary>
-        SEMICOLON = 39,
+        Semicolon = 39,
         /// <summary>
         /// The APOSTROPHE
         /// </summary>
-        APOSTROPHE = 40,
+        Apostrophe = 40,
         /// <summary>
         /// The GRAVE
         /// </summary>
-        GRAVE = 41,
+        Grave = 41,
         /// <summary>
         /// The LEFTSHIFT
         /// </summary>
-        LEFTSHIFT = 42,
+        Leftshift = 42,
         /// <summary>
         /// The BACKSLASH
         /// </summary>
-        BACKSLASH = 43,
+        Backslash = 43,
         /// <summary>
         /// The Z
         /// </summary>
@@ -212,47 +208,47 @@ namespace Squid
         /// <summary>
         /// The COMMA
         /// </summary>
-        COMMA = 51,
+        Comma = 51,
         /// <summary>
         /// The PERIOD
         /// </summary>
-        PERIOD = 52,
+        Period = 52,
         /// <summary>
         /// The SLASH
         /// </summary>
-        SLASH = 53,
+        Slash = 53,
         /// <summary>
         /// The RIGHTSHIFT
         /// </summary>
-        RIGHTSHIFT = 54,
+        Rightshift = 54,
         /// <summary>
         /// The NUMPADSTAR
         /// </summary>
-        NUMPADSTAR = 55,
+        Numpadstar = 55,
         /// <summary>
         /// The MULTIPLY
         /// </summary>
-        MULTIPLY = 55,
+        Multiply = 55,
         /// <summary>
         /// The LEFTMENU
         /// </summary>
-        LEFTMENU = 56,
+        Leftmenu = 56,
         /// <summary>
         /// The AL t_ LEFT
         /// </summary>
-        ALT_LEFT = 56,
+        AltLeft = 56,
         /// <summary>
         /// The SPACE
         /// </summary>
-        SPACE = 57,
+        Space = 57,
         /// <summary>
         /// The CAPITAL
         /// </summary>
-        CAPITAL = 58,
+        Capital = 58,
         /// <summary>
         /// The CAPSLOCK
         /// </summary>
-        CAPSLOCK = 58,
+        Capslock = 58,
         /// <summary>
         /// The f1
         /// </summary>
@@ -296,79 +292,79 @@ namespace Squid
         /// <summary>
         /// The NUMLOCK
         /// </summary>
-        NUMLOCK = 69,
+        Numlock = 69,
         /// <summary>
         /// The SCROLL
         /// </summary>
-        SCROLL = 70,
+        Scroll = 70,
         /// <summary>
         /// The NUMPA d7
         /// </summary>
-        NUMPAD7 = 71,
+        Numpad7 = 71,
         /// <summary>
         /// The NUMPA d8
         /// </summary>
-        NUMPAD8 = 72,
+        Numpad8 = 72,
         /// <summary>
         /// The NUMPA d9
         /// </summary>
-        NUMPAD9 = 73,
+        Numpad9 = 73,
         /// <summary>
         /// The SUBTRACT
         /// </summary>
-        SUBTRACT = 74,
+        Subtract = 74,
         /// <summary>
         /// The NUMPADMINUS
         /// </summary>
-        NUMPADMINUS = 74,
+        Numpadminus = 74,
         /// <summary>
         /// The NUMPA d4
         /// </summary>
-        NUMPAD4 = 75,
+        Numpad4 = 75,
         /// <summary>
         /// The NUMPA d5
         /// </summary>
-        NUMPAD5 = 76,
+        Numpad5 = 76,
         /// <summary>
         /// The NUMPA d6
         /// </summary>
-        NUMPAD6 = 77,
+        Numpad6 = 77,
         /// <summary>
         /// The NUMPADPLUS
         /// </summary>
-        NUMPADPLUS = 78,
+        Numpadplus = 78,
         /// <summary>
         /// The ADD
         /// </summary>
-        ADD = 78,
+        Add = 78,
         /// <summary>
         /// The NUMPA d1
         /// </summary>
-        NUMPAD1 = 79,
+        Numpad1 = 79,
         /// <summary>
         /// The NUMPA d2
         /// </summary>
-        NUMPAD2 = 80,
+        Numpad2 = 80,
         /// <summary>
         /// The NUMPA d3
         /// </summary>
-        NUMPAD3 = 81,
+        Numpad3 = 81,
         /// <summary>
         /// The NUMPA d0
         /// </summary>
-        NUMPAD0 = 82,
+        Numpad0 = 82,
         /// <summary>
         /// The DECIMAL
         /// </summary>
-        DECIMAL = 83,
+        Decimal = 83,
         /// <summary>
         /// The NUMPADPERIOD
         /// </summary>
-        NUMPADPERIOD = 83,
+        Numpadperiod = 83,
         /// <summary>
         /// The OE M_102
         /// </summary>
-        OEM_102 = 86,
+        Oem102 = 86,
         /// <summary>
         /// The F11
         /// </summary>
@@ -392,258 +388,258 @@ namespace Squid
         /// <summary>
         /// The KANA
         /// </summary>
-        KANA = 112,
+        Kana = 112,
         /// <summary>
         /// The ABN t_ c1
         /// </summary>
-        ABNT_C1 = 115,
+        AbntC1 = 115,
         /// <summary>
         /// The CONVERT
         /// </summary>
-        CONVERT = 121,
+        Convert = 121,
         /// <summary>
         /// The NOCONVERT
         /// </summary>
-        NOCONVERT = 123,
+        Noconvert = 123,
         /// <summary>
         /// The YEN
         /// </summary>
-        YEN = 125,
+        Yen = 125,
         /// <summary>
         /// The ABN t_ c2
         /// </summary>
-        ABNT_C2 = 126,
+        AbntC2 = 126,
         /// <summary>
         /// The NUMPADEQUALS
         /// </summary>
-        NUMPADEQUALS = 141,
+        Numpadequals = 141,
         /// <summary>
         /// The CIRCUMFLEX
         /// </summary>
-        CIRCUMFLEX = 144,
+        Circumflex = 144,
         /// <summary>
         /// The PREVTRACK
         /// </summary>
-        PREVTRACK = 144,
+        Prevtrack = 144,
         /// <summary>
         /// The AT
         /// </summary>
-        AT = 145,
+        At = 145,
         /// <summary>
         /// The COLON
         /// </summary>
-        COLON = 146,
+        Colon = 146,
         /// <summary>
         /// The UNDERLINE
         /// </summary>
-        UNDERLINE = 147,
+        Underline = 147,
         /// <summary>
         /// The KANJI
         /// </summary>
-        KANJI = 148,
+        Kanji = 148,
         /// <summary>
         /// The STOP
         /// </summary>
-        STOP = 149,
+        Stop = 149,
         /// <summary>
         /// The AX
         /// </summary>
-        AX = 150,
+        Ax = 150,
         /// <summary>
         /// The UNLABELED
         /// </summary>
-        UNLABELED = 151,
+        Unlabeled = 151,
         /// <summary>
         /// The NEXTTRACK
         /// </summary>
-        NEXTTRACK = 153,
+        Nexttrack = 153,
         /// <summary>
         /// The NUMPADENTER
         /// </summary>
-        NUMPADENTER = 156,
+        Numpadenter = 156,
         /// <summary>
         /// The RIGHTCONTROL
         /// </summary>
-        RIGHTCONTROL = 157,
+        Rightcontrol = 157,
         /// <summary>
         /// The MUTE
         /// </summary>
-        MUTE = 160,
+        Mute = 160,
         /// <summary>
         /// The CALCULATOR
         /// </summary>
-        CALCULATOR = 161,
+        Calculator = 161,
         /// <summary>
         /// The PLAYPAUSE
         /// </summary>
-        PLAYPAUSE = 162,
+        Playpause = 162,
         /// <summary>
         /// The MEDIASTOP
         /// </summary>
-        MEDIASTOP = 164,
+        Mediastop = 164,
         /// <summary>
         /// The VOLUMEDOWN
         /// </summary>
-        VOLUMEDOWN = 174,
+        Volumedown = 174,
         /// <summary>
         /// The VOLUMEUP
         /// </summary>
-        VOLUMEUP = 176,
+        Volumeup = 176,
         /// <summary>
         /// The WEBHOME
         /// </summary>
-        WEBHOME = 178,
+        Webhome = 178,
         /// <summary>
         /// The NUMPADCOMMA
         /// </summary>
-        NUMPADCOMMA = 179,
+        Numpadcomma = 179,
         /// <summary>
         /// The NUMPADSLASH
         /// </summary>
-        NUMPADSLASH = 181,
+        Numpadslash = 181,
         /// <summary>
         /// The DIVIDE
         /// </summary>
-        DIVIDE = 181,
+        Divide = 181,
         /// <summary>
         /// The SYSRQ
         /// </summary>
-        SYSRQ = 183,
+        Sysrq = 183,
         /// <summary>
         /// The AL t_ RIGHT
         /// </summary>
-        ALT_RIGHT = 184,
+        AltRight = 184,
         /// <summary>
         /// The RIGHTMENU
         /// </summary>
-        RIGHTMENU = 184,
+        Rightmenu = 184,
         /// <summary>
         /// The PAUSE
         /// </summary>
-        PAUSE = 197,
+        Pause = 197,
         /// <summary>
         /// The HOME
         /// </summary>
-        HOME = 199,
+        Home = 199,
         /// <summary>
         /// The UP
         /// </summary>
-        UP = 200,
+        Up = 200,
         /// <summary>
         /// The UPARROW
         /// </summary>
-        UPARROW = 200,
+        Uparrow = 200,
         /// <summary>
         /// The PAGEUP
         /// </summary>
-        PAGEUP = 201,
+        Pageup = 201,
         /// <summary>
         /// The PRIOR
         /// </summary>
-        PRIOR = 201,
+        Prior = 201,
         /// <summary>
         /// The LEFTARROW
         /// </summary>
-        LEFTARROW = 203,
+        Leftarrow = 203,
         /// <summary>
         /// The LEFT
         /// </summary>
-        LEFT = 203,
+        Left = 203,
         /// <summary>
         /// The RIGHT
         /// </summary>
-        RIGHT = 205,
+        Right = 205,
         /// <summary>
         /// The RIGHTARROW
         /// </summary>
-        RIGHTARROW = 205,
+        Rightarrow = 205,
         /// <summary>
         /// The END
         /// </summary>
-        END = 207,
+        End = 207,
         /// <summary>
         /// The DOWN
         /// </summary>
-        DOWN = 208,
+        Down = 208,
         /// <summary>
         /// The DOWNARROW
         /// </summary>
-        DOWNARROW = 208,
+        Downarrow = 208,
         /// <summary>
         /// The PAGEDOWN
         /// </summary>
-        PAGEDOWN = 209,
+        Pagedown = 209,
         /// <summary>
         /// The NEXT
         /// </summary>
-        NEXT = 209,
+        Next = 209,
         /// <summary>
         /// The INSERT
         /// </summary>
-        INSERT = 210,
+        Insert = 210,
         /// <summary>
         /// The DELETE
         /// </summary>
-        DELETE = 211,
+        Delete = 211,
         /// <summary>
         /// The LEFTWINDOWS
         /// </summary>
-        LEFTWINDOWS = 219,
+        Leftwindows = 219,
         /// <summary>
         /// The RWIN
         /// </summary>
-        RWIN = 220,
+        Rwin = 220,
         /// <summary>
         /// The APPS
         /// </summary>
-        APPS = 221,
+        Apps = 221,
         /// <summary>
         /// The POWER
         /// </summary>
-        POWER = 222,
+        Power = 222,
         /// <summary>
         /// The SLEEP
         /// </summary>
-        SLEEP = 223,
+        Sleep = 223,
         /// <summary>
         /// The WAKE
         /// </summary>
-        WAKE = 227,
+        Wake = 227,
         /// <summary>
         /// The WEBSEARCH
         /// </summary>
-        WEBSEARCH = 229,
+        Websearch = 229,
         /// <summary>
         /// The WEBFAVORITES
         /// </summary>
-        WEBFAVORITES = 230,
+        Webfavorites = 230,
         /// <summary>
         /// The WEBREFRESH
         /// </summary>
-        WEBREFRESH = 231,
+        Webrefresh = 231,
         /// <summary>
         /// The WEBSTOP
         /// </summary>
-        WEBSTOP = 232,
+        Webstop = 232,
         /// <summary>
         /// The WEBFORWARD
         /// </summary>
-        WEBFORWARD = 233,
+        Webforward = 233,
         /// <summary>
         /// The WEBBACK
         /// </summary>
-        WEBBACK = 234,
+        Webback = 234,
         /// <summary>
         /// The MYCOMPUTER
         /// </summary>
-        MYCOMPUTER = 235,
+        Mycomputer = 235,
         /// <summary>
         /// The MAIL
         /// </summary>
-        MAIL = 236,
+        Mail = 236,
         /// <summary>
         /// The MEDIASELECT
         /// </summary>
-        MEDIASELECT = 237,
+        Mediaselect = 237,
     }
 }

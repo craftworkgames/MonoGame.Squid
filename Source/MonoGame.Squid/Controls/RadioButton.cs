@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A RadioButton
@@ -104,9 +104,9 @@ namespace Squid
         {
             if (Button.Checked && Parent != null)
             {
-                bool valid = false;
+                var valid = false;
 
-                foreach (RadioButton btn in Parent.GetControls<RadioButton>())
+                foreach (var btn in Parent.GetControls<RadioButton>())
                 {
                     if (btn != this && btn.Group == Group)
                     {
@@ -134,7 +134,7 @@ namespace Squid
         {
             if (Button.Checked && Parent != null)
             {
-                foreach (RadioButton btn in Parent.GetControls<RadioButton>())
+                foreach (var btn in Parent.GetControls<RadioButton>())
                 {
                     if (btn != this && btn.Group == Group)
                         btn.Checked = false;

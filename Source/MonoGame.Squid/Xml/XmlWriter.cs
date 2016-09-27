@@ -1,115 +1,114 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Squid.Xml
+namespace MonoGame.Squid.Xml
 {
     public class XmlWriter
     {
         class Element
         {
-            public bool isRoot;
-            public string name;
-            public Dictionary<string, string> attributes = new Dictionary<string, string>();
-            public string value;
+            public bool IsRoot;
+            public string Name;
+            public readonly Dictionary<string, string> Attributes = new Dictionary<string, string>();
+            public string Value;
 
-            public List<Element> elements = new List<Element>();
-            public Element parent;
+            public readonly List<Element> Elements = new List<Element>();
+            public Element Parent;
         }
 
-        StringBuilder builder;
-        List<Element> elements = new List<Element>();
-        Element current = new Element { isRoot = true };
+        readonly StringBuilder _builder;
+        List<Element> _elements = new List<Element>();
+        Element _current = new Element { IsRoot = true };
 
-        bool indention;
+        readonly bool _indention;
 
         public XmlWriter(StringBuilder output, bool indent)
         {
-            indention = indent;
-            builder = output;
+            _indention = indent;
+            _builder = output;
         }
 
         public void Flush()
         {
-            foreach(Element element in current.elements)
+            foreach(var element in _current.Elements)
                 Write(element, 0);           
         }
 
         private void Write(Element element, int level)
         {
-            if (level > 0 && indention)
-                builder.Append(new string(' ', level * 4));
+            if (level > 0 && _indention)
+                _builder.Append(new string(' ', level * 4));
 
-            builder.Append("<" + element.name);
+            _builder.Append("<" + element.Name);
             
-            if (element.attributes.Count > 0)
+            if (element.Attributes.Count > 0)
             {
-                builder.Append(" ");
+                _builder.Append(" ");
 
-                int i = 0;
-                foreach (KeyValuePair<string, string> pair in element.attributes)
+                var i = 0;
+                foreach (var pair in element.Attributes)
                 {
                     i++;
-                    if(i == element.attributes.Count)
-                        builder.Append(pair.Key + "='" + pair.Value + "'");
+                    if(i == element.Attributes.Count)
+                        _builder.Append(pair.Key + "='" + pair.Value + "'");
                     else
-                        builder.Append(pair.Key + "='" + pair.Value + "' ");
+                        _builder.Append(pair.Key + "='" + pair.Value + "' ");
                 }
             }
 
-            bool isEmpty = string.IsNullOrEmpty(element.value) && element.elements.Count == 0;
+            var isEmpty = string.IsNullOrEmpty(element.Value) && element.Elements.Count == 0;
 
             if (!isEmpty)
             {
-                builder.Append(">");
+                _builder.Append(">");
 
-                if (!string.IsNullOrEmpty(element.value))
+                if (!string.IsNullOrEmpty(element.Value))
                 {
-                    builder.Append(element.value);
+                    _builder.Append(element.Value);
                 }
                 else
                 {
-                    if(indention)
-                        builder.Append("\r\n");
+                    if(_indention)
+                        _builder.Append("\r\n");
                     
-                    foreach (Element child in element.elements)
+                    foreach (var child in element.Elements)
                         Write(child, level + 1);
                 }
 
-                if (string.IsNullOrEmpty(element.value) && level > 0 && indention)
-                    builder.Append(new string(' ', level * 4)); 
+                if (string.IsNullOrEmpty(element.Value) && level > 0 && _indention)
+                    _builder.Append(new string(' ', level * 4)); 
                 
-                builder.Append("</" + element.name + ">\r\n");
+                _builder.Append("</" + element.Name + ">\r\n");
             }
             else
-                builder.Append("/>\r\n");
+                _builder.Append("/>\r\n");
         }
 
         public void Close() { }
 
         public void WriteStartElement(string name)
         {
-            Element e = new Element();
-            e.name = name;
-            e.parent = current;
+            var e = new Element();
+            e.Name = name;
+            e.Parent = _current;
          
-            current.elements.Add(e);
-            current = e;
+            _current.Elements.Add(e);
+            _current = e;
         }
 
         public void WriteAttributeString(string name, string value)
         {
-            current.attributes.Add(name, value);
+            _current.Attributes.Add(name, value);
         }
 
         public void WriteEndElement()
         {
-            current = current.parent;
+            _current = _current.Parent;
         }
 
         public void WriteValue(string value)
         {
-            current.value = value;
+            _current.Value = value;
         }
     }
 }

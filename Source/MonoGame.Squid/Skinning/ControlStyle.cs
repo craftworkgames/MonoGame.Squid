@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Squid.Xml;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
+using MonoGame.Squid.Xml;
 
-namespace Squid
+namespace MonoGame.Squid.Skinning
 {
     /// <summary>
     /// A ControlStyle. This is a set of Styles.
@@ -77,7 +77,7 @@ namespace Squid
         {
             Styles = new StyleCollection();
 
-            foreach (ControlState state in style.Styles.Keys)
+            foreach (var state in style.Styles.Keys)
                 Styles.Add(state, new Style(style.Styles[state]));
         }
 
@@ -267,7 +267,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.Tint = value;
             }
         }
@@ -281,7 +281,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.TextColor = value;
             }
         }
@@ -295,7 +295,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.BackColor = value;
             }
         }
@@ -309,7 +309,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.Opacity = value;
             }
         }
@@ -323,7 +323,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.Font = value;
             }
         }
@@ -337,7 +337,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.Texture = value;
             }
         }
@@ -351,7 +351,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.Tiling = value;
             }
         }
@@ -365,7 +365,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.TextureRect = value;
             }
         }
@@ -379,7 +379,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.TextPadding = value;
             }
         }
@@ -393,7 +393,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.TextAlign = value;
             }
         }
@@ -407,7 +407,7 @@ namespace Squid
         {
             set
             {
-                foreach (Style state in Styles.Values)
+                foreach (var state in Styles.Values)
                     state.Grid = value;
             }
         }

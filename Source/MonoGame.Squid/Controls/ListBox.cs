@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
-using Squid.Xml;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
+using MonoGame.Squid.Xml;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A collection of ListBoxItems
@@ -29,10 +30,10 @@ namespace Squid
     [Toolbox]
     public class ListBox : Control
     {
-        private bool skipEvents;
-        private Frame ItemContainer;
+        private bool _skipEvents;
+        private readonly Frame _itemContainer;
         private ListBoxItem _selectedItem;
-        private ActiveList<ListBoxItem> _selected = new ActiveList<ListBoxItem>();
+        private readonly ActiveList<ListBoxItem> _selected = new ActiveList<ListBoxItem>();
 
         /// <summary>
         /// Raised when [selected item changed].
@@ -98,24 +99,24 @@ namespace Squid
             {
                 if (value == _selectedItem) return;
 
-                skipEvents = true;
+                _skipEvents = true;
 
                 if (_selectedItem != null)
                     _selectedItem.Selected = false;
 
-                skipEvents = false;
+                _skipEvents = false;
 
                 if (Multiselect)
                     _selected.Clear();
 
                 _selectedItem = value;
 
-                skipEvents = true;
+                _skipEvents = true;
 
                 if (_selectedItem != null)
                     _selectedItem.Selected = true;
 
-                skipEvents = false;
+                _skipEvents = false;
 
                 if (SelectedItemChanged != null)
                     SelectedItemChanged(this, _selectedItem);
@@ -160,9 +161,9 @@ namespace Squid
             ClipFrame.Scissor = true;
             Elements.Add(ClipFrame);
 
-            ItemContainer = new Frame();
-            ItemContainer.AutoSize = AutoSize.Vertical;
-            ClipFrame.Controls.Add(ItemContainer);
+            _itemContainer = new Frame();
+            _itemContainer.AutoSize = AutoSize.Vertical;
+            ClipFrame.Controls.Add(_itemContainer);
 
             _selected.BeforeItemAdded += _selected_BeforeItemAdded;
             _selected.ItemAdded += _selected_ItemAdded;
@@ -183,15 +184,15 @@ namespace Squid
 
         void _selected_BeforeItemsCleared(object sender, EventArgs e)
         {
-            skipEvents = true;
+            _skipEvents = true;
 
-            foreach (ListBoxItem item in _selected)
+            foreach (var item in _selected)
                 item.Selected = false;
 
             if (SelectedItemsChanged != null)
                 SelectedItemsChanged(this);
 
-            skipEvents = false;
+            _skipEvents = false;
         }
 
         void _selected_BeforeItemAdded(object sender, ListEventArgs<ListBoxItem> e)
@@ -203,9 +204,9 @@ namespace Squid
         {
             if (e.Item == null) return;
 
-            skipEvents = true;
+            _skipEvents = true;
             e.Item.Selected = false;
-            skipEvents = false;
+            _skipEvents = false;
 
             if (SelectedItemsChanged != null)
                 SelectedItemsChanged(this);
@@ -215,9 +216,9 @@ namespace Squid
         {
             if (e.Item == null) return;
 
-            skipEvents = true;
+            _skipEvents = true;
             e.Item.Selected = true;
-            skipEvents = false;
+            _skipEvents = false;
 
             if (SelectedItemsChanged != null)
                 SelectedItemsChanged(this);
@@ -226,19 +227,19 @@ namespace Squid
         protected override void OnUpdate()
         {
             // force the width to be that of its parent
-            ItemContainer.Size = new Point(ClipFrame.Size.x, ItemContainer.Size.y);
+            _itemContainer.Size = new Point(ClipFrame.Size.X, _itemContainer.Size.Y);
 
             // move the label up/down using the scrollbar value
-            if (ItemContainer.Size.y < ClipFrame.Size.y) // no need to scroll
+            if (_itemContainer.Size.Y < ClipFrame.Size.Y) // no need to scroll
             {
                 Scrollbar.Visible = false; // hide scrollbar
-                ItemContainer.Position = new Point(0, 0); // set fixed position
+                _itemContainer.Position = new Point(0, 0); // set fixed position
             }
             else
             {
-                Scrollbar.Scale = Math.Min(1, (float)Size.y / (float)ItemContainer.Size.y);
+                Scrollbar.Scale = Math.Min(1, (float)Size.Y / (float)_itemContainer.Size.Y);
                 Scrollbar.Visible = true; // show scrollbar
-                ItemContainer.Position = new Point(0, (int)((ClipFrame.Size.y - ItemContainer.Size.y) * Scrollbar.EasedValue));
+                _itemContainer.Position = new Point(0, (int)((ClipFrame.Size.Y - _itemContainer.Size.Y) * Scrollbar.EasedValue));
             }
 
             if (Scrollbar.ShowAlways)
@@ -252,15 +253,15 @@ namespace Squid
 
         void Items_ItemsSorted(object sender, EventArgs e)
         {
-            ItemContainer.Controls.Clear();
+            _itemContainer.Controls.Clear();
 
-            foreach (ListBoxItem item in Items)
-                ItemContainer.Controls.Add(item);
+            foreach (var item in Items)
+                _itemContainer.Controls.Add(item);
         }
 
         void Items_ItemRemoved(object sender, ListEventArgs<ListBoxItem> e)
         {
-            ItemContainer.Controls.Clear();
+            _itemContainer.Controls.Clear();
 
             if (e.Item.Selected)
             {
@@ -274,13 +275,13 @@ namespace Squid
             e.Item.MouseClick -= item_MouseClick;
             e.Item.SelectedChanged -= Item_SelectedChanged;
 
-            foreach (ListBoxItem item in Items)
-                ItemContainer.Controls.Add(item);
+            foreach (var item in Items)
+                _itemContainer.Controls.Add(item);
         }
 
         void Items_ItemAdded(object sender, ListEventArgs<ListBoxItem> e)
         {
-            ItemContainer.Controls.Clear();
+            _itemContainer.Controls.Clear();
 
             if (e.Item.Selected)
             {
@@ -293,15 +294,15 @@ namespace Squid
             e.Item.MouseClick += item_MouseClick;
             e.Item.SelectedChanged += Item_SelectedChanged;
 
-            foreach (ListBoxItem item in Items)
-                ItemContainer.Controls.Add(item);
+            foreach (var item in Items)
+                _itemContainer.Controls.Add(item);
         }
 
         void Item_SelectedChanged(Control sender)
         {
-            ListBoxItem item = sender as ListBoxItem;
+            var item = sender as ListBoxItem;
 
-            if (skipEvents) return;
+            if (_skipEvents) return;
 
             if (item.Selected)
             {
@@ -321,23 +322,23 @@ namespace Squid
 
         void Items_BeforeItemsCleared(object sender, EventArgs e)
         {
-            skipEvents = true;
-            foreach (ListBoxItem item in Items)
+            _skipEvents = true;
+            foreach (var item in Items)
             {
                 item.MouseClick -= item_MouseClick;
                 item.SelectedChanged -= Item_SelectedChanged;
                 item.Selected = false;
             }
-            skipEvents = false;
+            _skipEvents = false;
 
-            ItemContainer.Controls.Clear();
+            _itemContainer.Controls.Clear();
         }
 
         void item_MouseClick(Control sender, MouseEventArgs args)
         {
             if (args.Button > 0) return;
 
-            ListBoxItem item = sender as ListBoxItem;
+            var item = sender as ListBoxItem;
 
             if (Multiselect)
             {

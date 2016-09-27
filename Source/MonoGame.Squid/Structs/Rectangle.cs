@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Globalization;
-using System.Collections;
 
-namespace Squid
+namespace MonoGame.Squid.Structs
 {
     /// <summary>
     /// Struct Rectangle
@@ -81,11 +81,11 @@ namespace Squid
         /// <param name="size">The size.</param>
         public Rectangle(Point pos, Point size)
         {
-            _left = pos.x;
-            _top = pos.y;
+            _left = pos.X;
+            _top = pos.Y;
 
-            _right = pos.x + size.x;
-            _bottom = pos.y + size.y;
+            _right = pos.X + size.X;
+            _bottom = pos.Y + size.Y;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Squid
         /// <returns>Rectangle.</returns>
         public Rectangle Clip(Rectangle rect)
         {
-            Rectangle result = new Rectangle();
+            var result = new Rectangle();
             result.Left = Math.Max(Left, rect.Left);
             result.Top = Math.Max(Top, rect.Top);
 
@@ -132,7 +132,7 @@ namespace Squid
         /// <returns><c>true</c> if [contains] [the specified point]; otherwise, <c>false</c>.</returns>
         public bool Contains(Point point)
         {
-            return point.x > Left && point.x < Right && point.y > Top && point.y < Bottom;
+            return point.X > Left && point.X < Right && point.Y > Top && point.Y < Bottom;
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace Squid
         /// <returns>An <see cref="T:System.Object" /> that represents the converted value.</returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            string str = value as string;
+            var str = value as string;
             if (str == null)
                 return base.ConvertFrom(context, culture, value);
 
@@ -196,11 +196,11 @@ namespace Squid
                 if (culture == null)
                     culture = CultureInfo.CurrentCulture;
 
-                string[] strArray = str.Split(new char[] { ';', ':' });
-                int[] numArray = new int[strArray.Length];
+                var strArray = str.Split(new char[] { ';', ':' });
+                var numArray = new int[strArray.Length];
 
-                TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
-                for (int i = 0; i < numArray.Length; i++)
+                var converter = TypeDescriptor.GetConverter(typeof(int));
+                for (var i = 0; i < numArray.Length; i++)
                     numArray[i] = (int)converter.ConvertFromString(context, culture, strArray[i]);
 
                 return new Rectangle(numArray[0], numArray[1], numArray[2], numArray[3]);
@@ -228,18 +228,18 @@ namespace Squid
             }
             if (value is Rectangle)
             {
-                Rectangle rect = (Rectangle)value;
+                var rect = (Rectangle)value;
 
                 if (destinationType == typeof(string))
                 {
                     if (culture == null)
                         culture = CultureInfo.CurrentCulture;
 
-                    string separator = "; ";
-                    TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
-                    string[] strArray = new string[4];
+                    var separator = "; ";
+                    var converter = TypeDescriptor.GetConverter(typeof(int));
+                    var strArray = new string[4];
 
-                    int num = 0;
+                    var num = 0;
                     strArray[num++] = converter.ConvertToString(context, culture, rect.Left);
                     strArray[num++] = converter.ConvertToString(context, culture, rect.Top);
                     strArray[num++] = converter.ConvertToString(context, culture, rect.Width);
@@ -274,7 +274,7 @@ namespace Squid
             if (propertyValues == null)
                 throw new ArgumentNullException("propertyValues");
 
-            Rectangle padding = (Rectangle)context.PropertyDescriptor.GetValue(context.Instance);
+            var padding = (Rectangle)context.PropertyDescriptor.GetValue(context.Instance);
 
             return new Margin((int)propertyValues["Left"], (int)propertyValues["Top"], (int)propertyValues["Width"], (int)propertyValues["Height"]);
         }

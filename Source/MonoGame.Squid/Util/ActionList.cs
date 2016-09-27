@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using MonoGame.Squid.Controls;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     public abstract class GuiAction
     {
         internal Control _control;
-        internal GuiActionList _list;
+        internal GuiActionList List;
 
-        protected GuiActionList Actions { get { return _list; } }
+        protected GuiActionList Actions { get { return List; } }
         protected Control Control { get { return _control; } }
 
         public event VoidEvent Finished;
@@ -37,12 +36,12 @@ namespace Squid
             }
         }
 
-        private bool firstRun = true;
+        private bool _firstRun = true;
         internal void InternalUpdate(float dt)
         {
-            if (firstRun)
+            if (_firstRun)
             {
-                firstRun = false;
+                _firstRun = false;
 
                 Start();
 
@@ -65,61 +64,61 @@ namespace Squid
     {
         internal bool IsUpdating;
 
-        private int index;
-        private Control owner;
-        private List<GuiAction> Actions = new List<GuiAction>();
+        private int _index;
+        private readonly Control _owner;
+        private readonly List<GuiAction> _actions = new List<GuiAction>();
 
-        public GuiAction First { get { return Actions.Count > 0 ? Actions[0] : null; } }
-        public GuiAction Last { get { return Actions.Count > 0 ? Actions[Actions.Count - 1] : null; } }
+        public GuiAction First { get { return _actions.Count > 0 ? _actions[0] : null; } }
+        public GuiAction Last { get { return _actions.Count > 0 ? _actions[_actions.Count - 1] : null; } }
 
         public GuiActionList(Control owner)
         {
-            this.owner = owner;
+            this._owner = owner;
         }
 
         public void Clear()
         {
-            Actions.Clear();
+            _actions.Clear();
         }
 
         public GuiAction Add(GuiAction action)
         {
-            action._list = this;
-            action._control = owner;
-            Actions.Add(action);
+            action.List = this;
+            action._control = _owner;
+            _actions.Add(action);
             return action;
         }
 
         public void InsertBefore(GuiAction action)
         {
-            action._list = this;
-            action._control = owner;
-            Actions.Insert(index - 1, action);
+            action.List = this;
+            action._control = _owner;
+            _actions.Insert(_index - 1, action);
         }
 
         public void InsertAfter(GuiAction action)
         {
-            action._list = this;
-            action._control = owner;
-            Actions.Insert(index + 1, action);
+            action.List = this;
+            action._control = _owner;
+            _actions.Insert(_index + 1, action);
         }
 
         public void Remove(GuiAction action)
         {
-            Actions.Remove(action);
+            _actions.Remove(action);
         }
 
         public void Update(float dt)
         {
             IsUpdating = true;
 
-            index = 0;
-            int i = index;
+            _index = 0;
+            var i = _index;
             //int lanes = 0;
 
-            while (i < Actions.Count)
+            while (i < _actions.Count)
             {
-                GuiAction action = Actions[i];
+                var action = _actions[i];
 
                 //if ((lanes & action.Lanes) == 0)
                 //    continue;
@@ -132,11 +131,11 @@ namespace Squid
                 if (action.IsFinished)
                 {
                     // action->OnEnd();
-                    Actions.Remove(action);
+                    _actions.Remove(action);
                 }
 
                 i++;
-                index = i;
+                _index = i;
 
                 if (action.IsBlocking)
                     break;

@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A collection of TabPages
@@ -89,7 +90,7 @@ namespace Squid
 
         void TabPages_BeforeItemsCleared(object sender, EventArgs e)
         {
-            foreach (TabPage page in TabPages)
+            foreach (var page in TabPages)
             {
                 page.Button.MouseClick -= Button_MouseClick;
                 page.Button.Parent = ButtonFrame;
@@ -106,7 +107,7 @@ namespace Squid
         {
             ButtonFrame.Controls.Clear();
 
-            foreach (TabPage page in TabPages)
+            foreach (var page in TabPages)
             {
                 page.Button.MouseClick -= Button_MouseClick;
                 page.Button.MouseClick += Button_MouseClick;

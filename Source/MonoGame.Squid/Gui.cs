@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Skinning;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid
 {
 
     public delegate string TranslateStringHandler(string text);
@@ -13,7 +14,7 @@ namespace Squid
     /// </summary>
     public static class Gui
     {
-        private static string Clipboard;
+        private static string _clipboard;
 
         public static TranslateStringHandler TranslateHandler;
         public static int Language { get; private set; }
@@ -128,15 +129,15 @@ namespace Squid
             KeyBuffer = keys;
             NumKeyEvents = keys.Length;
 
-            foreach (KeyData key in keys)
+            foreach (var key in keys)
             {
-                if (key.Key == Keys.LEFTSHIFT || key.Key == Keys.RIGHTSHIFT)
+                if (key.Key == Keys.Leftshift || key.Key == Keys.Rightshift)
                     ShiftPressed = key.Pressed;
 
-                if (key.Key == Keys.ALT_LEFT || key.Key == Keys.ALT_RIGHT)
+                if (key.Key == Keys.AltLeft || key.Key == Keys.AltRight)
                     AltPressed = key.Pressed;
 
-                if (key.Key == Keys.LEFTCONTROL || key.Key == Keys.RIGHTCONTROL)
+                if (key.Key == Keys.Leftcontrol || key.Key == Keys.Rightcontrol)
                     CtrlPressed = key.Pressed;
             }
         }
@@ -149,9 +150,9 @@ namespace Squid
         /// <param name="scroll">scrollwheel delta</param>
         public static void SetMouse(int posX, int posY, int scroll)
         {
-            Point m = MousePosition;
+            var m = MousePosition;
             MousePosition = new Point(posX, posY);
-            Point move = MousePosition - m;
+            var move = MousePosition - m;
             MouseMovement = move;
             MouseScroll = scroll;
         }
@@ -162,7 +163,7 @@ namespace Squid
         /// <param name="buttons">array of booleans. true = button down</param>
         public static void SetButtons(params bool[] buttons)
         {
-            for (int i = 0; i < buttons.Length; i++)
+            for (var i = 0; i < buttons.Length; i++)
             {
                 if (i == Buttons.Length) break;
 
@@ -203,7 +204,7 @@ namespace Squid
         /// <param name="data"></param>
         public static void SetClipboard(string data)
         {
-            Clipboard = data;
+            _clipboard = data;
         }
 
         /// <summary>
@@ -212,7 +213,7 @@ namespace Squid
         /// <returns></returns>
         public static string GetClipboard()
         {
-            return Clipboard;
+            return _clipboard;
         }
 
         /// <summary>
@@ -222,7 +223,7 @@ namespace Squid
         /// <returns></returns>
         public static Skin GenerateStandardSkin()
         {
-            ControlStyle baseStyle = new ControlStyle();
+            var baseStyle = new ControlStyle();
             baseStyle.Tiling = TextureMode.Grid;
             baseStyle.Grid = new Margin(3);
             baseStyle.Texture = "button_hot.dds";
@@ -234,75 +235,75 @@ namespace Squid
             baseStyle.Selected.Texture = "button_down.dds";
             baseStyle.SelectedHot.Texture = "button_down.dds";
 
-            ControlStyle itemStyle = new ControlStyle(baseStyle);
+            var itemStyle = new ControlStyle(baseStyle);
             itemStyle.TextPadding = new Margin(10, 0, 0, 0);
             itemStyle.TextAlign = Alignment.MiddleLeft;
 
-            ControlStyle buttonStyle = new ControlStyle(baseStyle);
+            var buttonStyle = new ControlStyle(baseStyle);
             buttonStyle.TextPadding = new Margin(0);
             buttonStyle.TextAlign = Alignment.MiddleCenter;
 
-            ControlStyle tooltipStyle = new ControlStyle(buttonStyle);
+            var tooltipStyle = new ControlStyle(buttonStyle);
             tooltipStyle.TextPadding = new Margin(8);
             tooltipStyle.TextAlign = Alignment.TopLeft;
 
-            ControlStyle inputStyle = new ControlStyle();
+            var inputStyle = new ControlStyle();
             inputStyle.Texture = "input_default.dds";
             inputStyle.Hot.Texture = "input_focused.dds";
             inputStyle.Focused.Texture = "input_focused.dds";
             inputStyle.TextPadding = new Margin(8);
             inputStyle.Tiling = TextureMode.Grid;
-            inputStyle.Focused.Tint = ColorInt.ARGB(1, 0, 0, 1);
+            inputStyle.Focused.Tint = ColorInt.Argb(1, 0, 0, 1);
             inputStyle.Grid = new Margin(3);
 
-            ControlStyle windowStyle = new ControlStyle();
+            var windowStyle = new ControlStyle();
             windowStyle.Tiling = TextureMode.Grid;
             windowStyle.Grid = new Margin(9);
             windowStyle.Texture = "window.dds";
 
-            ControlStyle frameStyle = new ControlStyle();
+            var frameStyle = new ControlStyle();
             frameStyle.Tiling = TextureMode.Grid;
             frameStyle.Grid = new Margin(4);
             frameStyle.Texture = "frame.dds";
             frameStyle.TextPadding = new Margin(8);
 
-            ControlStyle vscrollTrackStyle = new ControlStyle();
+            var vscrollTrackStyle = new ControlStyle();
             vscrollTrackStyle.Tiling = TextureMode.Grid;
             vscrollTrackStyle.Grid = new Margin(3);
             vscrollTrackStyle.Texture = "vscroll_track.dds";
 
-            ControlStyle vscrollButtonStyle = new ControlStyle();
+            var vscrollButtonStyle = new ControlStyle();
             vscrollButtonStyle.Tiling = TextureMode.Grid;
             vscrollButtonStyle.Grid = new Margin(3);
             vscrollButtonStyle.Texture = "vscroll_button.dds";
             vscrollButtonStyle.Hot.Texture = "vscroll_button_hot.dds";
             vscrollButtonStyle.Pressed.Texture = "vscroll_button_down.dds";
 
-            ControlStyle vscrollUp = new ControlStyle();
+            var vscrollUp = new ControlStyle();
             vscrollUp.Default.Texture = "vscrollUp_default.dds";
             vscrollUp.Hot.Texture = "vscrollUp_hot.dds";
             vscrollUp.Pressed.Texture = "vscrollUp_down.dds";
             vscrollUp.Focused.Texture = "vscrollUp_hot.dds";
 
-            ControlStyle hscrollTrackStyle = new ControlStyle();
+            var hscrollTrackStyle = new ControlStyle();
             hscrollTrackStyle.Tiling = TextureMode.Grid;
             hscrollTrackStyle.Grid = new Margin(3);
             hscrollTrackStyle.Texture = "hscroll_track.dds";
 
-            ControlStyle hscrollButtonStyle = new ControlStyle();
+            var hscrollButtonStyle = new ControlStyle();
             hscrollButtonStyle.Tiling = TextureMode.Grid;
             hscrollButtonStyle.Grid = new Margin(3);
             hscrollButtonStyle.Texture = "hscroll_button.dds";
             hscrollButtonStyle.Hot.Texture = "hscroll_button_hot.dds";
             hscrollButtonStyle.Pressed.Texture = "hscroll_button_down.dds";
 
-            ControlStyle hscrollUp = new ControlStyle();
+            var hscrollUp = new ControlStyle();
             hscrollUp.Default.Texture = "hscrollUp_default.dds";
             hscrollUp.Hot.Texture = "hscrollUp_hot.dds";
             hscrollUp.Pressed.Texture = "hscrollUp_down.dds";
             hscrollUp.Focused.Texture = "hscrollUp_hot.dds";
 
-            ControlStyle checkButtonStyle = new ControlStyle();
+            var checkButtonStyle = new ControlStyle();
             checkButtonStyle.Default.Texture = "checkbox_default.dds";
             checkButtonStyle.Hot.Texture = "checkbox_hot.dds";
             checkButtonStyle.Pressed.Texture = "checkbox_down.dds";
@@ -311,7 +312,7 @@ namespace Squid
             checkButtonStyle.CheckedHot.Texture = "checkbox_checked_hot.dds";
             checkButtonStyle.CheckedPressed.Texture = "checkbox_down.dds";
 
-            ControlStyle comboLabelStyle = new ControlStyle();
+            var comboLabelStyle = new ControlStyle();
             comboLabelStyle.TextPadding = new Margin(10, 0, 0, 0);
             comboLabelStyle.Default.Texture = "combo_default.dds";
             comboLabelStyle.Hot.Texture = "combo_hot.dds";
@@ -320,17 +321,17 @@ namespace Squid
             comboLabelStyle.Tiling = TextureMode.Grid;
             comboLabelStyle.Grid = new Margin(3, 0, 0, 0);
 
-            ControlStyle comboButtonStyle = new ControlStyle();
+            var comboButtonStyle = new ControlStyle();
             comboButtonStyle.Default.Texture = "combo_button_default.dds";
             comboButtonStyle.Hot.Texture = "combo_button_hot.dds";
             comboButtonStyle.Pressed.Texture = "combo_button_down.dds";
             comboButtonStyle.Focused.Texture = "combo_button_hot.dds";
 
-            ControlStyle labelStyle = new ControlStyle();
+            var labelStyle = new ControlStyle();
             labelStyle.TextAlign = Alignment.TopLeft;
             labelStyle.TextPadding = new Margin(8);
 
-            Skin skin = new Skin();
+            var skin = new Skin();
 
             skin.Add("item", itemStyle);
             skin.Add("textbox", inputStyle);

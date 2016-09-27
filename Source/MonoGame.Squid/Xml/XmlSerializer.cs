@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.ComponentModel;
 using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
-using System.IO;
-using Squid;
+using System.Text;
+using MonoGame.Squid.Controls;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Util;
 
-namespace Squid.Xml
+namespace MonoGame.Squid.Xml
 {
     public class XmlIgnoreAttribute : Attribute { }
 
@@ -19,7 +20,7 @@ namespace Squid.Xml
         public string Type;
         public string Value;
         public string Key;
-        public int RefID;
+        public int RefId;
         public int Reference;
 
         public List<Node> Nodes = new List<Node>();
@@ -27,21 +28,21 @@ namespace Squid.Xml
 
     public class XmlSerializer : IDisposable
     {
-        private Node Root;
+        private Node _root;
 
-        private Dictionary<int, object> ReadCache = new Dictionary<int, object>();
-        private Dictionary<object, Node> WriteCache = new Dictionary<object, Node>();
+        private readonly Dictionary<int, object> _readCache = new Dictionary<int, object>();
+        private readonly Dictionary<object, Node> _writeCache = new Dictionary<object, Node>();
 
-        private int Increment;
+        private int _increment;
 
         public string Serialize(object data)
         {
             CreateLogicalTree(data);
 
-            StringBuilder output = new StringBuilder();
-            XmlWriter writer = new XmlWriter(output, true);
+            var output = new StringBuilder();
+            var writer = new XmlWriter(output, true);
 
-            Write(Root, writer);
+            Write(_root, writer);
 
             writer.Flush();
             writer.Close();
@@ -52,24 +53,24 @@ namespace Squid.Xml
 
         public T Deserialize<T>(string xml)
         {
-            XmlReader reader = new XmlReader(xml);
+            var reader = new XmlReader(xml);
 
-            Root = ReadXml(reader);
+            _root = ReadXml(reader);
 
             reader = null;
 
-            ReadCache.Clear();
+            _readCache.Clear();
 
-            return (T)Deserialize(Root, typeof(T));
+            return (T)Deserialize(_root, typeof(T));
         }
 
         private void CreateLogicalTree(object data)
         {
             try
             {
-                WriteCache.Clear();
-                Root = CreateLogicalNode(data, false, false);
-                WriteCache.Clear();
+                _writeCache.Clear();
+                _root = CreateLogicalNode(data, false, false);
+                _writeCache.Clear();
             }
             catch(Exception ex)
             {
@@ -79,48 +80,48 @@ namespace Squid.Xml
 
         private Node CreateLogicalNode(object data, bool writeType, bool useCache)
         {
-            Type type = data.GetType();
+            var type = data.GetType();
 
-            Node result = new Node { Name = type.Name, Type = type.FullName, WriteType = writeType };
+            var result = new Node { Name = type.Name, Type = type.FullName, WriteType = writeType };
 
-            if (WriteCache.ContainsKey(data))
+            if (_writeCache.ContainsKey(data))
             {
                 if (useCache)
-                    return WriteCache[data];
+                    return _writeCache[data];
 
-                if (WriteCache[data].RefID == 0)
+                if (_writeCache[data].RefId == 0)
                 {
-                    Increment++;
-                    WriteCache[data].RefID = Increment;
+                    _increment++;
+                    _writeCache[data].RefId = _increment;
                 }
 
                 result.WriteType = false;
-                result.Reference = WriteCache[data].RefID;
+                result.Reference = _writeCache[data].RefId;
                 return result;
             }
             else
             {
-                WriteCache.Add(data, result);
+                _writeCache.Add(data, result);
             }
 
-            PropertyInfo[] properties = Reflector.GetProperties(type);// type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var properties = Reflector.GetProperties(type);// type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             if (properties.Length < 1) result.Value = data.ToString();
 
-            foreach (PropertyInfo info in properties)
+            foreach (var info in properties)
             {
                 if (info.IsDefined(typeof(XmlIgnoreAttribute), true)) continue;
                 if (!info.CanRead) continue;
                 if (!info.CanWrite) continue;
                 if (info.GetSetMethod() == null) continue;
 
-                object value = info.GetValue(data, null);
+                var value = info.GetValue(data, null);
                 if (value == null) continue;
 
                 // check vs. default value
-                object[] attributes = info.GetCustomAttributes(typeof(DefaultValueAttribute), true);
+                var attributes = info.GetCustomAttributes(typeof(DefaultValueAttribute), true);
                 if (attributes.Length > 0)
                 {
-                    DefaultValueAttribute def = attributes[0] as DefaultValueAttribute;
+                    var def = attributes[0] as DefaultValueAttribute;
                     if (def.Value != null)
                     {
                         if (def.Value.Equals(value))
@@ -128,32 +129,32 @@ namespace Squid.Xml
                     }
                 }
 
-                Type valueType = value.GetType();
+                var valueType = value.GetType();
 
                 if (info.PropertyType.IsPrimitive || info.PropertyType == typeof(string) || info.PropertyType.IsEnum)
                 {
-                    FlagsAttribute flags = Reflector.GetAttribute<FlagsAttribute>(info.PropertyType);
+                    var flags = Reflector.GetAttribute<FlagsAttribute>(info.PropertyType);
 
                     if (flags != null)
                     {
-                        Node sub = new Node { Name = info.Name, Value = ((int)value).ToString() };
+                        var sub = new Node { Name = info.Name, Value = ((int)value).ToString() };
                         result.Nodes.Add(sub);
                     }
                     else
                     {
-                        Node sub = new Node { Name = info.Name, Value = value.ToString() };
+                        var sub = new Node { Name = info.Name, Value = value.ToString() };
                         result.Nodes.Add(sub);
                     }
                 }
                 else if (valueType.IsValueType)
                 {
-                    TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(valueType);
+                    var converter = System.ComponentModel.TypeDescriptor.GetConverter(valueType);
                     if (converter != null)
                     {
                         try
                         {
-                            string str = converter.ConvertToString(value);
-                            Node sub = new Node { Name = info.Name, Value = str };
+                            var str = converter.ConvertToString(value);
+                            var sub = new Node { Name = info.Name, Value = str };
                             result.Nodes.Add(sub);
                         }
                         catch (Exception exc)
@@ -163,14 +164,14 @@ namespace Squid.Xml
                     }
                     else
                     {
-                        Node sub = CreateLogicalNode(value, !info.PropertyType.FullName.Equals(valueType.FullName), false);
+                        var sub = CreateLogicalNode(value, !info.PropertyType.FullName.Equals(valueType.FullName), false);
                         sub.Name = info.Name;
                         result.Nodes.Add(sub);
                     }
                 }
                 else if (value is IList)
                 {
-                    Node sub = new Node { Name = info.Name, Type = valueType.FullName };
+                    var sub = new Node { Name = info.Name, Type = valueType.FullName };
                     result.Nodes.Add(sub);
 
                     string name = null;
@@ -178,9 +179,9 @@ namespace Squid.Xml
 
                     if (valueType.IsGenericType || valueType.BaseType.IsGenericType)
                     {
-                        Type t = valueType.IsGenericType ? valueType : valueType.BaseType;
+                        var t = valueType.IsGenericType ? valueType : valueType.BaseType;
 
-                        Type[] gens = t.GetGenericArguments();
+                        var gens = t.GetGenericArguments();
                         if (gens.Length > 0)
                         {
                             name = gens[0].Name;
@@ -190,12 +191,12 @@ namespace Squid.Xml
                     else
                         fullname = ((IList)value)[0].GetType().FullName;
 
-                    foreach (object item in ((IList)value))
+                    foreach (var item in ((IList)value))
                     {
                         if (item != null)
                         {
-                            Type stype = item.GetType();
-                            Node child = CreateLogicalNode(item, !fullname.Equals(item.GetType().FullName), false);
+                            var stype = item.GetType();
+                            var child = CreateLogicalNode(item, !fullname.Equals(item.GetType().FullName), false);
 
                             if (!string.IsNullOrEmpty(name))
                                 child.Name = name;
@@ -204,36 +205,36 @@ namespace Squid.Xml
                         }
                         else
                         {
-                            Node child = new Node { Name = name };
+                            var child = new Node { Name = name };
                             sub.Nodes.Add(child);
                         }
                     }
                 }
                 else if (value is IDictionary)
                 {
-                    Node sub = new Node { Name = info.Name, Type = valueType.FullName };
+                    var sub = new Node { Name = info.Name, Type = valueType.FullName };
                     result.Nodes.Add(sub);
 
                     Type itemType = null;
                   
                     if (valueType.IsGenericType)
                     {
-                        Type[] gens = valueType.GetGenericArguments();
+                        var gens = valueType.GetGenericArguments();
                         if (gens.Length > 0)
                             itemType = gens[1];
                     }
                     else if (valueType.BaseType.IsGenericType)
                     {
-                        Type[] gens = valueType.BaseType.GetGenericArguments();
+                        var gens = valueType.BaseType.GetGenericArguments();
                         if (gens.Length > 0)
                             itemType = gens[1];
                     }
 
-                    IDictionary dict = (IDictionary)value;
+                    var dict = (IDictionary)value;
                    
-                    foreach (object key in dict.Keys)
+                    foreach (var key in dict.Keys)
                     {
-                        Node element = CreateLogicalNode(dict[key], true, false);
+                        var element = CreateLogicalNode(dict[key], true, false);
                         //Node element = CreateLogicalNode(dict[key], !dict[key].GetType().FullName.Equals(itemType.FullName), false);
                         element.Key = key.ToString();
                         sub.Nodes.Add(element);
@@ -263,7 +264,7 @@ namespace Squid.Xml
                 //}
                 else
                 {
-                    Node sub = CreateLogicalNode(value, !info.PropertyType.FullName.Equals(valueType.FullName), false);
+                    var sub = CreateLogicalNode(value, !info.PropertyType.FullName.Equals(valueType.FullName), false);
                     sub.Name = info.Name;
                     result.Nodes.Add(sub);
                 }
@@ -285,14 +286,14 @@ namespace Squid.Xml
                 //            sub.Nodes.Add(child);
                 //        }
 
-                ElementCollection elements = ((Control)data).GetElements();
+                var elements = ((Control)data).GetElements();
 
                 if (elements.Count > 0)
                 {
-                    Node sub = new Node { Name = "Elements", Type = typeof(Control).FullName };
+                    var sub = new Node { Name = "Elements", Type = typeof(Control).FullName };
                     result.Nodes.Add(sub);
 
-                    foreach (Control e in elements)
+                    foreach (var e in elements)
                         sub.Nodes.Add(CreateLogicalNode(e, false, true));
                 }
                 //    }
@@ -315,14 +316,14 @@ namespace Squid.Xml
 
             if (node.WriteType) writer.WriteAttributeString("xtype", node.Type);
             if (!string.IsNullOrEmpty(node.Key)) writer.WriteAttributeString("xkey", node.Key);
-            if (node.RefID != 0) writer.WriteAttributeString("xrefid", node.RefID.ToString());
+            if (node.RefId != 0) writer.WriteAttributeString("xrefid", node.RefId.ToString());
             if (node.Reference != 0) writer.WriteAttributeString("xref", node.Reference.ToString());
 
             if (node.Value != null)
                 writer.WriteValue(node.Value);
             else
             {
-                foreach (Node sub in node.Nodes)
+                foreach (var sub in node.Nodes)
                     Write(sub, writer);
             }
 
@@ -334,21 +335,21 @@ namespace Squid.Xml
             try
             {
                 Node current = null;
-                Root = null;
+                _root = null;
 
-                while (!reader.EOF)
+                while (!reader.Eof)
                 {
-                    if (!reader.Read()) return Root;
+                    if (!reader.Read()) return _root;
 
                     switch (reader.NodeType)
                     {
                         case XmlNodeType.Element:
 
-                            Node node = new Node { Name = reader.Name };
+                            var node = new Node { Name = reader.Name };
                             node.Parent = current;
 
-                            if (Root == null)
-                                Root = node;
+                            if (_root == null)
+                                _root = node;
 
                             if (current != null)
                                 current.Nodes.Add(node);
@@ -362,12 +363,12 @@ namespace Squid.Xml
                                     else if (reader.Name.Equals("xkey"))
                                         node.Key = reader.Value;
                                     else if (reader.Name.Equals("xrefid"))
-                                        node.RefID = Convert.ToInt32(reader.Value);
+                                        node.RefId = Convert.ToInt32(reader.Value);
                                     else if (reader.Name.Equals("xref"))
                                         node.Reference = Convert.ToInt32(reader.Value);
                                     else
                                     {
-                                        Node sub1 = new Node { Name = reader.Name, Value = reader.Value };
+                                        var sub1 = new Node { Name = reader.Name, Value = reader.Value };
                                         node.Nodes.Add(sub1);
                                     }
                                 }
@@ -387,7 +388,7 @@ namespace Squid.Xml
 
                             if (!string.IsNullOrEmpty(reader.Value))
                             {
-                                string value = reader.Value.Trim();
+                                var value = reader.Value.Trim();
 
                                 if (!string.IsNullOrEmpty(value))
                                     current.Value = reader.Value;
@@ -401,15 +402,15 @@ namespace Squid.Xml
             catch
             {
             }
-            return Root;
+            return _root;
         }
 
         private Node FindNode(Node parent, int reference)
         {
-            Node found = parent.Nodes.Find(x => x.RefID == reference);
+            var found = parent.Nodes.Find(x => x.RefId == reference);
             if (found != null) return found;
 
-            foreach (Node sub in parent.Nodes)
+            foreach (var sub in parent.Nodes)
             {
                 found = FindNode(sub, reference);
                 if (found != null)
@@ -422,31 +423,31 @@ namespace Squid.Xml
         {
             if (node.Reference != 0)
             {
-                if (ReadCache.ContainsKey(node.Reference))
-                    return ReadCache[node.Reference];
+                if (_readCache.ContainsKey(node.Reference))
+                    return _readCache[node.Reference];
                 else
                 {
-                    Node refnode = FindNode(Root, node.Reference);
+                    var refnode = FindNode(_root, node.Reference);
                     if (refnode != null)
                         return Deserialize(refnode, propertyType);
                 }
             }
 
-            Type type = target.GetType();
-            object result = target;
+            var type = target.GetType();
+            var result = target;
             object value = null;
 
             if (!(result is IList || result is IDictionary))
             {
-                PropertyInfo[] properties = Reflector.GetProperties(type);
+                var properties = Reflector.GetProperties(type);
 
-                foreach (PropertyInfo info in properties)
+                foreach (var info in properties)
                 {
                     if (info.IsDefined(typeof(XmlIgnoreAttribute), true)) continue;
                     if (!info.CanWrite) continue;
                     if (info.GetSetMethod() == null) continue;
 
-                    Node child = node.Nodes.Find(x => x.Name.Equals(info.Name));
+                    var child = node.Nodes.Find(x => x.Name.Equals(info.Name));
 
                     if (child == null) continue;
 
@@ -454,7 +455,7 @@ namespace Squid.Xml
 
                     if (!string.IsNullOrEmpty(child.Value))
                     {
-                        TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(info.PropertyType);
+                        var converter = System.ComponentModel.TypeDescriptor.GetConverter(info.PropertyType);
                         if (converter != null)
                             value = converter.ConvertFromString(child.Value);
                     }
@@ -483,12 +484,12 @@ namespace Squid.Xml
 
                 if (result is IControlContainer)
                 {
-                    IControlContainer container = result as IControlContainer;
+                    var container = result as IControlContainer;
                     child = node.Nodes.Find(x => x.Name.Equals("Controls"));
 
                     if (child != null)
                     {
-                        for (int i = 0; i < child.Nodes.Count; i++)
+                        for (var i = 0; i < child.Nodes.Count; i++)
                         {
                             value = null;
 
@@ -507,12 +508,12 @@ namespace Squid.Xml
                     }
                 }
 
-                ElementCollection elements = ((Control)result).GetElements();
+                var elements = ((Control)result).GetElements();
                 child = node.Nodes.Find(x => x.Name.Equals("Elements"));
 
                 if (child != null)
                 {
-                    for (int i = 0; i < child.Nodes.Count; i++)
+                    for (var i = 0; i < child.Nodes.Count; i++)
                     {
                         DeserializeTo(elements[i], child.Nodes[i], typeof(Control));
                     }
@@ -526,12 +527,12 @@ namespace Squid.Xml
                 Type itemType = null;
                 if (type.IsGenericType)
                 {
-                    Type[] gens = type.GetGenericArguments();
+                    var gens = type.GetGenericArguments();
                     if (gens.Length > 0)
                         itemType = gens[0];
                 }
 
-                foreach (Node child in node.Nodes)
+                foreach (var child in node.Nodes)
                 {
                     ((IList)result).Add(Deserialize(child, itemType));
                 }
@@ -544,7 +545,7 @@ namespace Squid.Xml
 
                 if (type.IsGenericType)
                 {
-                    Type[] gens = type.GetGenericArguments();
+                    var gens = type.GetGenericArguments();
                     if (gens.Length > 1)
                     {
                         keyType = gens[0];
@@ -552,21 +553,21 @@ namespace Squid.Xml
                     }
                 }
 
-                TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(keyType);
+                var converter = System.ComponentModel.TypeDescriptor.GetConverter(keyType);
                 if (converter != null)
                 {
-                    foreach (Node child in node.Nodes)
+                    foreach (var child in node.Nodes)
                     {
-                        object key = converter.ConvertFromString(child.Key);
+                        var key = converter.ConvertFromString(child.Key);
                         ((IDictionary)result).Add(key, Deserialize(child, itemType));
                     }
                 }
             }
 
-            if (node.RefID != 0)
+            if (node.RefId != 0)
             {
-                if (!ReadCache.ContainsKey(node.RefID))
-                    ReadCache.Add(node.RefID, result);
+                if (!_readCache.ContainsKey(node.RefId))
+                    _readCache.Add(node.RefId, result);
             }
 
             return result;
@@ -576,11 +577,11 @@ namespace Squid.Xml
         {
             if (node.Reference != 0)
             {
-                if (ReadCache.ContainsKey(node.Reference))
-                    return ReadCache[node.Reference];
+                if (_readCache.ContainsKey(node.Reference))
+                    return _readCache[node.Reference];
                 else
                 {
-                    Node refnode = FindNode(Root, node.Reference);
+                    var refnode = FindNode(_root, node.Reference);
                     if (refnode != null)
                         return Deserialize(refnode, propertyType);
                 }
@@ -606,9 +607,9 @@ namespace Squid.Xml
 
             if (!(result is IList || result is IDictionary))
             {
-                PropertyInfo[] properties = Reflector.GetProperties(type);
+                var properties = Reflector.GetProperties(type);
 
-                foreach (PropertyInfo info in properties)
+                foreach (var info in properties)
                 {
                     value = null;
 
@@ -618,12 +619,12 @@ namespace Squid.Xml
 
                     if (info.GetSetMethod() == null) continue;
 
-                    Node child = node.Nodes.Find(x => x.Name.Equals(info.Name));
+                    var child = node.Nodes.Find(x => x.Name.Equals(info.Name));
                     if (child == null) continue;
 
                     if (!string.IsNullOrEmpty(child.Value))
                     {
-                        TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(info.PropertyType);
+                        var converter = System.ComponentModel.TypeDescriptor.GetConverter(info.PropertyType);
                         if (converter != null)
                         {
                             if (converter.CanConvertFrom(typeof(string)))
@@ -648,12 +649,12 @@ namespace Squid.Xml
 
                 if (result is IControlContainer)
                 {
-                    IControlContainer container = result as IControlContainer;
+                    var container = result as IControlContainer;
                     child = node.Nodes.Find(x => x.Name.Equals("Controls"));
 
                     if (child != null)
                     {
-                        for (int i = 0; i < child.Nodes.Count; i++)
+                        for (var i = 0; i < child.Nodes.Count; i++)
                         {
                             if (container.Controls.Count > i)
                             {
@@ -670,12 +671,12 @@ namespace Squid.Xml
                     }
                 }
 
-                ElementCollection elements = ((Control)result).GetElements();
+                var elements = ((Control)result).GetElements();
                 child = node.Nodes.Find(x => x.Name.Equals("Elements"));
 
                 if (child != null)
                 {
-                    for (int i = 0; i < child.Nodes.Count; i++)
+                    for (var i = 0; i < child.Nodes.Count; i++)
                     {
                         DeserializeTo(elements[i], child.Nodes[i], typeof(Control));
                     }
@@ -689,12 +690,12 @@ namespace Squid.Xml
                 Type itemType = null;
                 if (type.IsGenericType)
                 {
-                    Type[] gens = type.GetGenericArguments();
+                    var gens = type.GetGenericArguments();
                     if (gens.Length > 0)
                         itemType = gens[0];
                 }
 
-                foreach (Node child in node.Nodes)
+                foreach (var child in node.Nodes)
                 {
                     ((IList)result).Add(Deserialize(child, itemType));
                 }
@@ -707,7 +708,7 @@ namespace Squid.Xml
 
                 if (type.IsGenericType)
                 {
-                    Type[] gens = type.GetGenericArguments();
+                    var gens = type.GetGenericArguments();
                     if (gens.Length > 1)
                     {
                         keyType = gens[0];
@@ -716,7 +717,7 @@ namespace Squid.Xml
                 }
                 else if (type.BaseType.IsGenericType)
                 {
-                    Type[] gens = type.BaseType.GetGenericArguments();
+                    var gens = type.BaseType.GetGenericArguments();
                     if (gens.Length > 1)
                     {
                         keyType = gens[0];
@@ -724,21 +725,21 @@ namespace Squid.Xml
                     }
                 }
 
-                TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(keyType);
+                var converter = System.ComponentModel.TypeDescriptor.GetConverter(keyType);
                 if (converter != null)
                 {
-                    foreach (Node child in node.Nodes)
+                    foreach (var child in node.Nodes)
                     {
-                        object key = converter.ConvertFromString(child.Key);
+                        var key = converter.ConvertFromString(child.Key);
                         ((IDictionary)result).Add(key, Deserialize(child, itemType));
                     }
                 }
             }
 
-            if (node.RefID != 0)
+            if (node.RefId != 0)
             {
-                if (!ReadCache.ContainsKey(node.RefID))
-                    ReadCache.Add(node.RefID, result);
+                if (!_readCache.ContainsKey(node.RefId))
+                    _readCache.Add(node.RefId, result);
             }
 
             return result;

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// Utility class used to ease values

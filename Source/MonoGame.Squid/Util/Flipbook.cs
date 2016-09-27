@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// Helper class to manage a sprite sheet animation.
@@ -13,54 +11,54 @@ namespace Squid
         public int Columns = 1;
         public float Speed = 60;
 
-        private float Timer;
-        private int col = 0;
-        private int row = 0;
+        private float _timer;
+        private int _col = 0;
+        private int _row = 0;
 
-        private Rectangle rect = new Rectangle();
+        private Rectangle _rect = new Rectangle();
 
         public void Draw(int texture, int x, int y, int width, int height, int color)
         {
             if (texture < 0) return;
 
-            Timer += Gui.TimeElapsed;
+            _timer += Gui.TimeElapsed;
             
-            if (Timer >= Speed)
+            if (_timer >= Speed)
             {
-                Timer = 0;
+                _timer = 0;
                 Advance();
             }
 
-            Point size = Gui.Renderer.GetTextureSize(texture);
+            var size = Gui.Renderer.GetTextureSize(texture);
             
-            int w = (int)((float)size.x / (float)Columns);
-            int h = (int)((float)size.y / (float)Rows);
+            var w = (int)((float)size.X / (float)Columns);
+            var h = (int)((float)size.Y / (float)Rows);
 
-            rect.Left = w * col;
-            rect.Right = (w * (col + 1));
+            _rect.Left = w * _col;
+            _rect.Right = (w * (_col + 1));
 
-            rect.Top = h * row;
-            rect.Bottom = (h * (row + 1));
+            _rect.Top = h * _row;
+            _rect.Bottom = (h * (_row + 1));
 
-            Gui.Renderer.DrawTexture(texture, x, y, width, height, rect, color);
+            Gui.Renderer.DrawTexture(texture, x, y, width, height, _rect, color);
         }
 
         private void Advance()
         {
-            if (col < Columns)
+            if (_col < Columns)
             {
-                col++;
+                _col++;
 
-                if (col >= Columns)
+                if (_col >= Columns)
                 {
-                    col = 0;
+                    _col = 0;
 
-                    if (row < Rows)
+                    if (_row < Rows)
                     {
-                        row++;
+                        _row++;
 
-                        if (row >= Rows)
-                            row = 0;
+                        if (_row >= Rows)
+                            _row = 0;
                     }
                 }
             }

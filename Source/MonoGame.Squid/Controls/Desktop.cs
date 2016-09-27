@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Skinning;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// Delegate CursorChangedEvent
@@ -69,7 +73,7 @@ namespace Squid
 
                 if (CursorChanged != null)
                 {
-                    Cursor cursor = GetCursor();
+                    var cursor = GetCursor();
                     CursorChanged(cursor);
                 }
 
@@ -108,7 +112,7 @@ namespace Squid
         /// Gets the drop target control.
         /// </summary>
         /// <value>The drop target control.</value>
-        public Control DropTarget { get { return dropTarget; } }
+        public Control DropTarget { get { return _dropTarget; } }
 
         /// <summary>
         /// Gets the focused control.
@@ -166,10 +170,10 @@ namespace Squid
         /// </summary>
         public void CloseDropdowns()
         {
-            foreach (Control control in Dropdowns)
+            foreach (var control in _dropdowns)
                 control.Parent = null;
 
-            Dropdowns.Clear();
+            _dropdowns.Clear();
         }
 
         /// <summary>
@@ -183,7 +187,7 @@ namespace Squid
             base.Draw();
 
             if (ShowCursor)
-                DrawCursor(Gui.MousePosition.x, Gui.MousePosition.y);
+                DrawCursor(Gui.MousePosition.X, Gui.MousePosition.Y);
 
             Gui.Renderer.EndBatch(true);
         }
@@ -195,7 +199,7 @@ namespace Squid
         /// <param name="y">The y.</param>
         public void DrawCursor(int x, int y)
         {
-            Cursor cursor = GetCursor();
+            var cursor = GetCursor();
 
             if (cursor != null)
                 cursor.Draw(x, y);
@@ -226,18 +230,18 @@ namespace Squid
         public ControlStyle GetStyle(string name)
         {
             if (string.IsNullOrEmpty(name))
-                return DefaultStyle;
+                return _defaultStyle;
 
             //if (AdditionalStyles.ContainsKey(name))
             //    return AdditionalStyles[name];
 
             if (Skin == null)
-                return DefaultStyle;
+                return _defaultStyle;
 
             if (Skin.ContainsKey(name))
                 return Skin[name];
 
-            return DefaultStyle;
+            return _defaultStyle;
         }
 
         /// <summary>
@@ -248,12 +252,12 @@ namespace Squid
         /// <returns>Window.</returns>
         public Window GetWindowAt(int x, int y)
         {
-            for (int i = Controls.Count - 1; i >= 0; i--)
+            for (var i = Controls.Count - 1; i >= 0; i--)
             {
-                Window w = Controls[i] as Window;
+                var w = Controls[i] as Window;
                 if (w == null) continue;
 
-                if (w.Enabled && w.Visible && w.Hit(Gui.MousePosition.x, Gui.MousePosition.y))
+                if (w.Enabled && w.Visible && w.Hit(Gui.MousePosition.X, Gui.MousePosition.Y))
                     return w;
             }
 
@@ -289,9 +293,9 @@ namespace Squid
             if (DesignMode) return;
             if (TooltipControl == null) return;
 
-            if (context != currentContext)
+            if (context != _currentContext)
             {
-                currentContext = context;
+                _currentContext = context;
                 Elements.Add(TooltipControl);
                 TooltipControl.SetContext(context);
             }
@@ -322,16 +326,16 @@ namespace Squid
             if (!stack)
                 CloseDropdowns();
 
-            if (Dropdowns.Contains(control)) return;
+            if (_dropdowns.Contains(control)) return;
 
-            if (Dropdowns.Count > 0)
+            if (_dropdowns.Count > 0)
             {
-                int index = 0;
-                bool found = false;
+                var index = 0;
+                var found = false;
 
-                for (int i = 0; i < Dropdowns.Count; i++)
+                for (var i = 0; i < _dropdowns.Count; i++)
                 {
-                    if (Dropdowns[i].Owner == control.Owner)
+                    if (_dropdowns[i].Owner == control.Owner)
                     {
                         index = i;
                         found = true;
@@ -341,16 +345,16 @@ namespace Squid
 
                 if (found)
                 {
-                    for (int i = Dropdowns.Count - 1; i >= index; i--)
+                    for (var i = _dropdowns.Count - 1; i >= index; i--)
                     {
-                        Dropdowns[i].Parent = null;
-                        Dropdowns.RemoveAt(i);
+                        _dropdowns[i].Parent = null;
+                        _dropdowns.RemoveAt(i);
                     }
                 }
             }
 
             control.Parent = this;
-            Dropdowns.Add(control);
+            _dropdowns.Add(control);
         }
 
         /// <summary>
@@ -382,10 +386,10 @@ namespace Squid
                     EndDragDrop();
             }
 
-            int pressed = -1;
-            int down = -1;
+            var pressed = -1;
+            var down = -1;
 
-            for (int i = 0; i < Gui.Buttons.Length; i++)
+            for (var i = 0; i < Gui.Buttons.Length; i++)
             {
                 if (Gui.GetButton(i) == ButtonState.Press)
                     pressed = i;
@@ -397,19 +401,19 @@ namespace Squid
             if (pressed == -1)
             {
                 if (TooltipControl != null) TooltipControl.Visible = false;
-                hot = GetControlAt(Gui.MousePosition.x, Gui.MousePosition.y);
+                _hot = GetControlAt(Gui.MousePosition.X, Gui.MousePosition.Y);
                 if (TooltipControl != null) TooltipControl.Visible = true;
 
-                if (!DesignMode && hot != null && ModalQueue.Count > 0)
+                if (!DesignMode && _hot != null && _modalQueue.Count > 0)
                 {
-                    Control check = ModalQueue[ModalQueue.Count - 1];
-                    bool found = check == hot || hot.IsChildOf(check);
+                    Control check = _modalQueue[_modalQueue.Count - 1];
+                    var found = check == _hot || _hot.IsChildOf(check);
 
-                    if (!found && Dropdowns.Count > 0)
+                    if (!found && _dropdowns.Count > 0)
                     {
-                        for (int i = Dropdowns.Count - 1; i >= 0; i--)
+                        for (var i = _dropdowns.Count - 1; i >= 0; i--)
                         {
-                            if (Dropdowns[i].Contains(hot))
+                            if (_dropdowns[i].Contains(_hot))
                             {
                                 found = true;
                                 break;
@@ -417,33 +421,33 @@ namespace Squid
                         }
                     }
 
-                    if (!found && hot.Owner != null)
-                        found = hot.Owner.IsChildOf(check);
+                    if (!found && _hot.Owner != null)
+                        found = _hot.Owner.IsChildOf(check);
 
                     if (!found)
-                        hot = this;
+                        _hot = this;
                 }
 
-                if (hot != HotControl)
+                if (_hot != HotControl)
                 {
                     if (HotControl != null)
                         HotControl.OnMouseLeave();
 
-                    if (hot != null)
+                    if (_hot != null)
                     {
-                        CurrentCursor = hot.Cursor;
-                        hot.OnMouseEnter();
+                        CurrentCursor = _hot.Cursor;
+                        _hot.OnMouseEnter();
                     }
 
-                    HotControl = hot;
+                    HotControl = _hot;
                 }
             }
             else if (pressed > 1)
             {
-                hot = null;
+                _hot = null;
             }
 
-            for (int i = 0; i < Gui.Buttons.Length; i++)
+            for (var i = 0; i < Gui.Buttons.Length; i++)
             {
                 if (Gui.GetButton(i) == ButtonState.Up)
                 {
@@ -457,22 +461,22 @@ namespace Squid
 
             if (!DesignMode && down > -1)
             {
-                if (ModalQueue.Count == 0)
+                if (_modalQueue.Count == 0)
                 {
-                    Window w = GetWindowAt(Gui.MousePosition.x, Gui.MousePosition.y);
-                    if (w != null && w != window && w.Dock == DockStyle.None)
+                    var w = GetWindowAt(Gui.MousePosition.X, Gui.MousePosition.Y);
+                    if (w != null && w != _window && w.Dock == DockStyle.None)
                     {
                         w.BringToFront();
                         w.Focus();
-                        window = w;
+                        _window = w;
                     }
                 }
 
-                if (hot != null)
+                if (_hot != null)
                 {
-                    if (hot.AllowFocus)
-                        FocusedControl = hot;
-                    else if (!hot.PreventFocusChange)
+                    if (_hot.AllowFocus)
+                        FocusedControl = _hot;
+                    else if (!_hot.PreventFocusChange)
                         FocusedControl = null;
                 }
                 else
@@ -481,20 +485,20 @@ namespace Squid
                 //if(OnClick != null)
                 //    OnClick(hot);
 
-                if (Dropdowns.Count > 0)
+                if (_dropdowns.Count > 0)
                 {
-                    if (hot == null)
+                    if (_hot == null)
                         CloseDropdowns();
                     else
                     {
-                        for (int i = Dropdowns.Count - 1; i >= 0; i--)
+                        for (var i = _dropdowns.Count - 1; i >= 0; i--)
                         {
-                            if (hot != Dropdowns[i])
+                            if (_hot != _dropdowns[i])
                             {
-                                if (!Dropdowns[i].Contains(hot))
+                                if (!_dropdowns[i].Contains(_hot))
                                 {
-                                    Dropdowns[i].Parent = null;
-                                    Dropdowns.RemoveAt(i);
+                                    _dropdowns[i].Parent = null;
+                                    _dropdowns.RemoveAt(i);
                                 }
                                 else break;
                             }
@@ -506,21 +510,21 @@ namespace Squid
 
             if (!DesignMode)
             {
-                if (hot != null)
-                    hot.DoEvents();
+                if (_hot != null)
+                    _hot.DoEvents();
 
                 DoKeyEvents();
 
                 if (FocusedControl != null)
                     FocusedControl.DoKeyEvents();
 
-                if (IsDragging)
+                if (_isDragging)
                 {
-                    SetTooltip(dropTarget);
+                    SetTooltip(_dropTarget);
                 }
                 else
                 {
-                    SetTooltip((down > -1 || pressed > -1) ? null : hot);
+                    SetTooltip((down > -1 || pressed > -1) ? null : _hot);
                 }
             }
 
@@ -528,9 +532,9 @@ namespace Squid
             PerformLayout();
             PerformLateUpdate();
 
-            foreach (KeyData data in Gui.KeyBuffer)
+            foreach (var data in Gui.KeyBuffer)
             {
-                if (data.Pressed && data.Key == Keys.TAB)
+                if (data.Pressed && data.Key == Keys.Tab)
                 {
                     if (Gui.ShiftPressed)
                         TabPrevious();
@@ -544,10 +548,10 @@ namespace Squid
 
         internal bool CheckModalLock(Control control)
         {
-            if (ModalQueue.Count > 0)
+            if (_modalQueue.Count > 0)
             {
-                Control check = ModalQueue[ModalQueue.Count - 1];
-                bool found = check == control || control.IsChildOf(check);
+                Control check = _modalQueue[_modalQueue.Count - 1];
+                var found = check == control || control.IsChildOf(check);
 
                 return !found;
             }
@@ -557,30 +561,30 @@ namespace Squid
 
         internal void DoDragDrop(Control sender, Control data)
         {
-            if (IsDragging) return;
+            if (_isDragging) return;
             if (data == null) return;
 
-            IsDragging = true;
+            _isDragging = true;
 
-            DragDropArgs = new DragDropEventArgs();
-            DragDropArgs.DraggedControl = data;
-            DragDropArgs.Source = sender;
+            _dragDropArgs = new DragDropEventArgs();
+            _dragDropArgs.DraggedControl = data;
+            _dragDropArgs.Source = sender;
 
-            DragDropOffset = data.Location - Gui.MousePosition;
+            _dragDropOffset = data.Location - Gui.MousePosition;
 
-            DragData = data;
-            DragDropSender = sender;
-            Controls.Add(DragData);
+            _dragData = data;
+            _dragDropSender = sender;
+            Controls.Add(_dragData);
         }
 
         internal void RegisterModal(Window control)
         {
-            ModalQueue.Add(control);
+            _modalQueue.Add(control);
         }
 
         internal void Tab(int dir)
         {
-            int index = 0;
+            var index = 0;
 
             if (FocusedControl != null)
                 index = FocusedControl.TabIndex;
@@ -592,7 +596,7 @@ namespace Squid
 
             if (index > 0)
             {
-                Control result = FindTabIndex(index);
+                var result = FindTabIndex(index);
 
                 if (result == null)
                     result = FindTabIndex(1);
@@ -604,7 +608,7 @@ namespace Squid
 
         internal void UnregisterModal(Window control)
         {
-            ModalQueue.Remove(control);
+            _modalQueue.Remove(control);
         }
 
         /// <summary>
@@ -622,89 +626,89 @@ namespace Squid
         private string _cursor;
 
         private Control _focused;
-        private Control currentContext;
-        private ControlStyle DefaultStyle = new ControlStyle();
-        private Control DragData;
-        private DragDropEventArgs DragDropArgs;
-        private Point DragDropOffset;
-        private Control DragDropSender;
-        private List<Control> Dropdowns = new List<Control>();
-        private Control dropTarget;
-        private Control hot;
-        private bool IsDragging;
-        private bool isDropInvalid;
-        private List<Window> ModalQueue = new List<Window>();
-        private Window window;
+        private Control _currentContext;
+        private readonly ControlStyle _defaultStyle = new ControlStyle();
+        private Control _dragData;
+        private DragDropEventArgs _dragDropArgs;
+        private Point _dragDropOffset;
+        private Control _dragDropSender;
+        private readonly List<Control> _dropdowns = new List<Control>();
+        private Control _dropTarget;
+        private Control _hot;
+        private bool _isDragging;
+        private bool _isDropInvalid;
+        private readonly List<Window> _modalQueue = new List<Window>();
+        private Window _window;
 
         private void EndDragDrop()
         {
-            if (!IsDragging) return;
-            IsDragging = false;
+            if (!_isDragging) return;
+            _isDragging = false;
 
-            if (isDropInvalid)
+            if (_isDropInvalid)
             {
-                isDropInvalid = false;
+                _isDropInvalid = false;
 
-                if (dropTarget != null)
+                if (_dropTarget != null)
                 {
-                    DragDropArgs.Cancel = false;
-                    dropTarget.OnDragLeave(DragDropArgs);
+                    _dragDropArgs.Cancel = false;
+                    _dropTarget.OnDragLeave(_dragDropArgs);
                 }
 
                 return;
             }
 
-            DragDropArgs.Cancel = false;
+            _dragDropArgs.Cancel = false;
 
-            if (dropTarget != null)
-                dropTarget.OnDragDrop(DragDropArgs);
+            if (_dropTarget != null)
+                _dropTarget.OnDragDrop(_dragDropArgs);
             else
-                OnDragDrop(DragDropArgs);
+                OnDragDrop(_dragDropArgs);
         }
 
         private void ProcessDragDrop()
         {
-            if (DragData == null) return;
+            if (_dragData == null) return;
 
-            if (IsDragging)
+            if (_isDragging)
             {
-                DragData.Position = DragDropOffset + Gui.MousePosition;
-                DragData.Position = Snap(DragData.Position);
+                _dragData.Position = _dragDropOffset + Gui.MousePosition;
+                _dragData.Position = Snap(_dragData.Position);
 
-                DragData.Visible = false;
-                Control drop = GetDropTarget(DragDropSender);
-                DragData.Visible = true;
+                _dragData.Visible = false;
+                var drop = GetDropTarget(_dragDropSender);
+                _dragData.Visible = true;
 
-                if (drop != dropTarget)
+                if (drop != _dropTarget)
                 {
-                    if (dropTarget != null)
+                    if (_dropTarget != null)
                     {
-                        DragDropArgs.Cancel = false;
-                        dropTarget.OnDragLeave(DragDropArgs);
+                        _dragDropArgs.Cancel = false;
+                        _dropTarget.OnDragLeave(_dragDropArgs);
                     }
 
-                    dropTarget = drop;
+                    _dropTarget = drop;
 
-                    if (dropTarget != null)
+                    if (_dropTarget != null)
                     {
-                        DragDropArgs.Cancel = false;
-                        dropTarget.OnDragEnter(DragDropArgs);
-                        if (DragDropArgs.Cancel) isDropInvalid = true;
+                        _dragDropArgs.Cancel = false;
+                        _dropTarget.OnDragEnter(_dragDropArgs);
+                        if (_dragDropArgs.Cancel) _isDropInvalid = true;
                     }
                 }
 
-                if (dropTarget != null)
+                if (_dropTarget != null)
                 {
-                    DragDropArgs.Cancel = false;
-                    dropTarget.OnDragResponse(DragDropArgs);
-                    if (DragDropArgs.Cancel) isDropInvalid = true;
+                    _dragDropArgs.Cancel = false;
+                    _dropTarget.OnDragResponse(_dragDropArgs);
+                    if (_dragDropArgs.Cancel) _isDropInvalid = true;
                 }
             }
             else
             {
-                Controls.Remove(DragData);
-                DragData = null;
-                dropTarget = null;
+                Controls.Remove(_dragData);
+                _dragData = null;
+                _dropTarget = null;
             }
         }
 
@@ -712,8 +716,8 @@ namespace Squid
         {
             if (DragDropSnap > 0)
             {
-                int x = (int)System.Math.Floor((float)p.x / DragDropSnap) * DragDropSnap;
-                int y = (int)System.Math.Floor((float)p.y / DragDropSnap) * DragDropSnap;
+                var x = (int)System.Math.Floor((float)p.X / DragDropSnap) * DragDropSnap;
+                var y = (int)System.Math.Floor((float)p.Y / DragDropSnap) * DragDropSnap;
 
                 p = new Point(x, y);
             }

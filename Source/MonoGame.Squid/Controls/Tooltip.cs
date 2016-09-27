@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// The Tooltip base class. Inherit this to create custom Tooltip controls.
@@ -42,7 +40,7 @@ namespace Squid
 
         public virtual void LayoutTooltip()
         {
-            Point p = Gui.MousePosition;
+            var p = Gui.MousePosition;
 
             switch (Alignment)
             {
@@ -50,43 +48,43 @@ namespace Squid
                     p = Gui.MousePosition;
                     break;
                 case Alignment.TopRight:
-                    p = Gui.MousePosition - new Point(Size.x, 0);
+                    p = Gui.MousePosition - new Point(Size.X, 0);
                     break;
                 case Alignment.TopCenter:
-                    p = Gui.MousePosition - new Point(Size.x / 2, 0);
+                    p = Gui.MousePosition - new Point(Size.X / 2, 0);
                     break;
                 case Alignment.MiddleLeft:
-                    p = Gui.MousePosition - new Point(0, Size.y / 2);
+                    p = Gui.MousePosition - new Point(0, Size.Y / 2);
                     break;
                 case Alignment.MiddleRight:
-                    p = Gui.MousePosition - new Point(Size.x, Size.y / 2);
+                    p = Gui.MousePosition - new Point(Size.X, Size.Y / 2);
                     break;
                 case Alignment.MiddleCenter:
-                    p = Gui.MousePosition - new Point(Size.x / 2, Size.y / 2);
+                    p = Gui.MousePosition - new Point(Size.X / 2, Size.Y / 2);
                     break;
                 case Alignment.BottomRight:
-                    p = Gui.MousePosition - new Point(Size.x, Size.y);
+                    p = Gui.MousePosition - new Point(Size.X, Size.Y);
                     break;
                 case Alignment.BottomLeft:
-                    p = Gui.MousePosition - new Point(0, Size.y);
+                    p = Gui.MousePosition - new Point(0, Size.Y);
                     break;
                 case Alignment.BottomCenter:
-                    p = Gui.MousePosition - new Point(Size.x / 2, Size.y);
+                    p = Gui.MousePosition - new Point(Size.X / 2, Size.Y);
                     break;
             }
 
             p += Offset;
 
-            if (p.x < 0) p.x = 0;
-            if (p.y < 0) p.y = 0;
+            if (p.X < 0) p.X = 0;
+            if (p.Y < 0) p.Y = 0;
 
-            Point p2 = p + Size;
+            var p2 = p + Size;
 
-            if (p2.x > Desktop.Size.x)
-                p.x = Desktop.Size.x - Size.x;
+            if (p2.X > Desktop.Size.X)
+                p.X = Desktop.Size.X - Size.X;
 
-            if (p2.y > Desktop.Size.y)
-                p.y = Desktop.Size.y - Size.y;
+            if (p2.Y > Desktop.Size.Y)
+                p.Y = Desktop.Size.Y - Size.Y;
 
             Position = p;
             PerformUpdate();

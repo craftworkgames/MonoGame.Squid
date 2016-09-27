@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Squid;
+using MonoGame.Squid.Structs;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
@@ -17,8 +17,8 @@ namespace MonoGame.Squid
             public double Repeat = _repeatDelay;
         }
 
-        private static Dictionary<Keys, int> _specialKeys = new Dictionary<Keys, int>();
-        private Dictionary<Keys, InputKey> _inputKeys = new Dictionary<Keys, InputKey>();
+        private static readonly Dictionary<Keys, int> _specialKeys = new Dictionary<Keys, int>();
+        private readonly Dictionary<Keys, InputKey> _inputKeys = new Dictionary<Keys, InputKey>();
 
         private KeyboardState _lastKeyboardState;
         private int _lastScroll;
@@ -41,7 +41,7 @@ namespace MonoGame.Squid
 
             foreach (Keys k in System.Enum.GetValues(typeof(Keys)))
             {
-                InputKey key = new InputKey();
+                var key = new InputKey();
                 key.Key = k;
                 key.ScanCode = VirtualKeyToScancode(k);
                 _inputKeys.Add(k, key);
@@ -50,7 +50,7 @@ namespace MonoGame.Squid
 
         private int VirtualKeyToScancode(Keys key)
         {
-            int sc = MonoGameSquidRenderer.VirtualKeyToScancode((int)key);
+            var sc = MonoGameSquidRenderer.VirtualKeyToScancode((int)key);
 
             if (_specialKeys.ContainsKey(key))
                 sc = _specialKeys[key];
@@ -62,29 +62,29 @@ namespace MonoGame.Squid
         public override void Update(GameTime gameTime)
         {
             // Mouse
-            MouseState mouseState = Mouse.GetState();
+            var mouseState = Mouse.GetState();
 
             if(mouseState.LeftButton == ButtonState.Pressed)
                 System.Diagnostics.Debug.WriteLine("Mouse Clicked."); 
 
-            int wheel = mouseState.ScrollWheelValue > _lastScroll ? -1 : (mouseState.ScrollWheelValue < _lastScroll ? 1 : 0);
+            var wheel = mouseState.ScrollWheelValue > _lastScroll ? -1 : (mouseState.ScrollWheelValue < _lastScroll ? 1 : 0);
             _lastScroll = mouseState.ScrollWheelValue;
 
             Gui.SetMouse(mouseState.X, mouseState.Y, wheel);
             Gui.SetButtons(mouseState.LeftButton == ButtonState.Pressed, mouseState.RightButton == ButtonState.Pressed);
 
             // Keyboard
-            KeyboardState keyboardState = Keyboard.GetState();
-            List<KeyData> squidKeys = new List<KeyData>();
+            var keyboardState = Keyboard.GetState();
+            var squidKeys = new List<KeyData>();
 
             double ms = Gui.TimeElapsed;
 
-            Keys[] now = keyboardState.GetPressedKeys();
-            Keys[] last = _lastKeyboardState.GetPressedKeys();
+            var now = keyboardState.GetPressedKeys();
+            var last = _lastKeyboardState.GetPressedKeys();
 
-            foreach (Keys key in now)
+            foreach (var key in now)
             {
-                bool wasDown = _lastKeyboardState.IsKeyDown(key);
+                var wasDown = _lastKeyboardState.IsKeyDown(key);
               
                 _inputKeys[key].Repeat -= ms;
 
@@ -99,9 +99,9 @@ namespace MonoGame.Squid
                 }
             }
 
-            foreach (Keys key in last)
+            foreach (var key in last)
             {
-                bool isDown = keyboardState.IsKeyDown(key);
+                var isDown = keyboardState.IsKeyDown(key);
 
                 if (!isDown)
                 {

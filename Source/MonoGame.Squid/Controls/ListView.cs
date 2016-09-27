@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Squid;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A multi-column ListView.
@@ -121,8 +122,8 @@ namespace Squid
                 {
                     if (_width == value) return;
                     _width = value;
-                    if (Header != null) Header.Size = new Point(_width, Header.Size.y);
-                    if (Frame != null) Frame.Size = new Point(_width, Frame.Size.y);
+                    if (Header != null) Header.Size = new Point(_width, Header.Size.Y);
+                    if (Frame != null) Frame.Size = new Point(_width, Frame.Size.Y);
                 }
             }
 
@@ -138,8 +139,8 @@ namespace Squid
                     if (_minWidth == value) return;
                     _minWidth = value;
 
-                    if (Header != null) Header.MinSize = new Point(_minWidth, Header.MinSize.y);
-                    if (Frame != null) Frame.MinSize = new Point(_minWidth, Frame.MinSize.y);
+                    if (Header != null) Header.MinSize = new Point(_minWidth, Header.MinSize.Y);
+                    if (Frame != null) Frame.MinSize = new Point(_minWidth, Frame.MinSize.Y);
                 }
             }
 
@@ -155,8 +156,8 @@ namespace Squid
                     if (_maxWidth == value) return;
                     _maxWidth = value;
 
-                    if (Header != null) Header.MaxSize = new Point(_maxWidth, Header.MaxSize.y);
-                    if (Frame != null) Frame.MaxSize = new Point(_maxWidth, Frame.MaxSize.y);
+                    if (Header != null) Header.MaxSize = new Point(_maxWidth, Header.MaxSize.Y);
+                    if (Frame != null) Frame.MaxSize = new Point(_maxWidth, Frame.MaxSize.Y);
                 }
             }
 
@@ -210,9 +211,9 @@ namespace Squid
             {
                 if (args.Button > 0) return;
 
-                Point p = Gui.MousePosition - _clickedPos;
+                var p = Gui.MousePosition - _clickedPos;
                 sender.Parent.ResizeTo(_oldSize + p, AnchorStyles.Right);
-                Width = sender.Parent.Size.x;
+                Width = sender.Parent.Size.X;
             }
         }
 
@@ -228,14 +229,14 @@ namespace Squid
             /// <summary>
             /// The cells
             /// </summary>
-            public List<Control> Cells = new List<Control>();
+            public readonly List<Control> Cells = new List<Control>();
         }
 
         #endregion
 
-        private Frame _headers;
+        private readonly Frame _headers;
         private List<object> _objects;
-        private List<Row> Rows = new List<Row>();
+        private readonly List<Row> _rows = new List<Row>();
 
         /// <summary>
         /// The cell formatter delegate
@@ -296,7 +297,7 @@ namespace Squid
             Header.Controls.Add(_headers);
 
             Panel = new Panel { Dock = DockStyle.Fill };
-            Panel.Content.AutoSize = Squid.AutoSize.Vertical;
+            Panel.Content.AutoSize = AutoSize.Vertical;
             Panel.Content.Update += Content_OnUpdate;
 
             Panel.VScroll.ButtonUp.Visible = false;
@@ -326,13 +327,13 @@ namespace Squid
 
         void Content_OnUpdate(Control sender)
         {
-            _headers.Position = new Point(Panel.Content.Position.x, 0);
+            _headers.Position = new Point(Panel.Content.Position.X, 0);
             _headers.PerformLayout();
         }
 
         protected override void OnUpdate()
         {
-            _headers.Size = new Point(_headers.Size.x, Header.Size.y);
+            _headers.Size = new Point(_headers.Size.X, Header.Size.Y);
 
             // disable horiz. scrollbar if last column is stretched
             Panel.Content.AutoSize = StretchLastColumn ? AutoSize.Vertical : AutoSize.HorizontalVertical;
@@ -342,7 +343,7 @@ namespace Squid
                 if (StretchLastColumn)
                 {
                     Columns[Columns.Count - 1].Frame.Dock = DockStyle.Fill;
-                    Columns[Columns.Count - 1].Width = Columns[Columns.Count - 1].Frame.Size.x;
+                    Columns[Columns.Count - 1].Width = Columns[Columns.Count - 1].Frame.Size.X;
                 }
                 else
                     Columns[Columns.Count - 1].Frame.Dock = DockStyle.Left;
@@ -358,7 +359,7 @@ namespace Squid
             Frames.Clear();
 
             // and add them again in the new order
-            foreach (Column column in Columns)
+            foreach (var column in Columns)
             {
                 Headers.Add(column.Header);
                 Frames.Add(column.Frame);
@@ -371,7 +372,7 @@ namespace Squid
             Frames.Clear();
             Headers.Clear();
 
-            Rows.Clear();
+            _rows.Clear();
         }
 
         void Columns_ItemRemoved(object sender, ListEventArgs<ListView.Column> e)
@@ -389,22 +390,22 @@ namespace Squid
             Columns_ItemsSorted(sender, null);
 
             // add cells for current column
-            foreach (Row row in Rows)
+            foreach (var row in _rows)
                 AddCell(row, e.Item);
         }
 
         private void BuildRows()
         {
-            Rows.Clear();
+            _rows.Clear();
 
             // add cells
-            for (int i = 0; i < _objects.Count; i++)
+            for (var i = 0; i < _objects.Count; i++)
             {
-                Row row = new Row();
+                var row = new Row();
                 row.RowObject = _objects[i];
-                Rows.Add(row);
+                _rows.Add(row);
 
-                foreach (Column column in Columns)
+                foreach (var column in Columns)
                     row.Cells.Add(column.Frame.Controls[i + 1]);
             }
         }
@@ -431,19 +432,19 @@ namespace Squid
 
         void cell_MouseClick(Control sender, MouseEventArgs args)
         {
-            Row row = (Row)sender.Tag;
+            var row = (Row)sender.Tag;
 
             if (sender is ISelectable)
             {
-                ISelectable check = sender as ISelectable;
+                var check = sender as ISelectable;
                 check.Selected = !check.Selected;
             }
 
-            foreach (Control cell in row.Cells)
+            foreach (var cell in row.Cells)
             {
                 if (!sender.Equals(cell) && cell is ISelectable)
                 {
-                    ISelectable check = cell as ISelectable;
+                    var check = cell as ISelectable;
                     check.Selected = !check.Selected;
                 }
             }
@@ -453,11 +454,11 @@ namespace Squid
         {
             if (!FullRowSelect) return;
 
-            Row row = (Row)sender.Tag;
+            var row = (Row)sender.Tag;
 
             if (sender.Equals(Desktop.HotControl) || sender.Equals(Desktop.DropTarget))
             {
-                foreach (Control cell in row.Cells)
+                foreach (var cell in row.Cells)
                 {
                     if (!sender.Equals(cell))
                         cell.State = sender.State;
@@ -471,7 +472,7 @@ namespace Squid
         /// <param name="objects">The objects.</param>
         public void SetObjects(IEnumerable objects)
         {
-            Rows.Clear();
+            _rows.Clear();
 
             Panel.HScroll.SetValue(0);
             Panel.VScroll.SetValue(0);
@@ -482,7 +483,7 @@ namespace Squid
             Columns_ItemsSorted(this, null);
 
             // clear columns
-            foreach (Column column in Columns)
+            foreach (var column in Columns)
             {
                 column.Clear();
 
@@ -509,17 +510,17 @@ namespace Squid
             if (objects == null)
                 return;
 
-            foreach (object ob in objects)
+            foreach (var ob in objects)
                 _objects.Add(ob);
 
             // add cells
-            for (int i = 0; i < _objects.Count; i++)
+            for (var i = 0; i < _objects.Count; i++)
             {
-                Row row = new Row();
+                var row = new Row();
                 row.RowObject = _objects[i];
-                Rows.Add(row);
+                _rows.Add(row);
 
-                foreach (Column column in Columns)
+                foreach (var column in Columns)
                     AddCell(row, column);
             }
         }
@@ -531,14 +532,14 @@ namespace Squid
         /// <param name="comparer">The comparer.</param>
         public void Sort<T>(Comparison<T> comparer)
         {
-            foreach (Column column in Columns)
+            foreach (var column in Columns)
                 column.Clear();
 
-            Rows.Sort((a, b) => comparer.Invoke((T)a.RowObject, (T)b.RowObject));
+            _rows.Sort((a, b) => comparer.Invoke((T)a.RowObject, (T)b.RowObject));
 
-            foreach (Row row in Rows)
+            foreach (var row in _rows)
             {
-                for (int i = 0; i < Columns.Count; i++)
+                for (var i = 0; i < Columns.Count; i++)
                     Columns[i].Frame.Controls.Add(row.Cells[i]);
             }
         }
@@ -554,10 +555,10 @@ namespace Squid
             if (string.IsNullOrEmpty(column.Aspect))
                 return "no aspect";
 
-            Type type = item.GetType();
-            System.Reflection.MemberInfo[] infos = type.GetMember(column.Aspect);
+            var type = item.GetType();
+            var infos = type.GetMember(column.Aspect);
             if (infos.Length == 0) return "not found";
-            System.Reflection.MemberInfo member = infos[0];
+            var member = infos[0];
 
             object value = null;
 

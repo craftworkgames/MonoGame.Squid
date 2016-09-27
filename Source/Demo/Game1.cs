@@ -1,33 +1,19 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Demo.SampleControls;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Squid;
-using Squid;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
+using Point = MonoGame.Squid.Structs.Point;
 
 namespace Demo
 {
-    public class GameDesktop : Desktop
-    {
-        public GameDesktop()
-        {
-            var button = new Button()
-            {
-                Text = "Hello",
-                Position = new Squid.Point(100, 100),
-                Size = new Squid.Point(100, 50)
-            };
-
-            Controls.Add(button);
-        }
-    }
-
     public class Game1 : Game
     {
         private readonly GraphicsDeviceManager _graphics;
+        private SampleDesktop _desktop;
         private SpriteBatch _spriteBatch;
-        private GameDesktop _desktop;
 
         public Game1()
         {
@@ -44,7 +30,10 @@ namespace Demo
 
         protected override void Initialize()
         {
+            Gui.Renderer = new MonoGameSquidRenderer(GraphicsDevice, Content);
+
             Components.Add(new MonoGameSquidInputManager(this));
+            Components.Add(new SampleScene(this));
 
             base.Initialize();
         }
@@ -52,10 +41,7 @@ namespace Demo
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            Gui.Renderer = new MonoGameSquidRenderer(GraphicsDevice, Content);
-
-            _desktop = new GameDesktop();
+            _desktop = new SampleDesktop();
         }
 
         protected override void UnloadContent()
@@ -67,10 +53,10 @@ namespace Demo
             var gamePadState = GamePad.GetState(PlayerIndex.One);
             var keyboardState = Keyboard.GetState();
 
-            if (gamePadState.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
+            if ((gamePadState.Buttons.Back == ButtonState.Pressed) || keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
-            _desktop.Size = new Squid.Point(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            _desktop.Size = new Point(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             _desktop.Update();
 
             base.Update(gameTime);

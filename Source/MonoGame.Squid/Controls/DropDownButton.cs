@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A DropDownButton
@@ -72,7 +70,7 @@ namespace Squid
         {
             if (OnOpening != null)
             {
-                SquidEventArgs args = new SquidEventArgs();
+                var args = new SquidEventArgs();
                 OnOpening(this, args);
                 if (args.Cancel) return;
             }
@@ -84,13 +82,13 @@ namespace Squid
             switch (Align)
             {
                 case Alignment.BottomLeft:
-                    Dropdown.Position = Location + new Point(0, Size.y);
+                    Dropdown.Position = Location + new Point(0, Size.Y);
                     break;
                 case Alignment.TopRight:
-                    Dropdown.Position = Location + new Point(Size.x, 0);
+                    Dropdown.Position = Location + new Point(Size.X, 0);
                     break;
                 case Alignment.TopLeft:
-                    Dropdown.Position = Location - new Point(Dropdown.Size.x, 0);
+                    Dropdown.Position = Location - new Point(Dropdown.Size.X, 0);
                     break;
             }
 
@@ -107,7 +105,7 @@ namespace Squid
 
             if (OnClosing != null)
             {
-                SquidEventArgs args = new SquidEventArgs();
+                var args = new SquidEventArgs();
                 OnClosing(this, args);
                 if (args.Cancel) return;
             }

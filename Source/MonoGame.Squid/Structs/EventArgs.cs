@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Controls;
 
-namespace Squid
+namespace MonoGame.Squid.Structs
 {
     /// <summary>
     /// Class SquidEventArgs

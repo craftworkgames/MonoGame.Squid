@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Squid.Xml;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
+using MonoGame.Squid.Xml;
 
-namespace Squid
+namespace MonoGame.Squid.Skinning
 {
     /// <summary>
     /// A dictionary of ControlState/Style pairs

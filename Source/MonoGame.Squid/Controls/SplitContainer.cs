@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A SplitContainer. Can be used horizontally and vertically.
@@ -13,8 +12,8 @@ namespace Squid
     public class SplitContainer : Control 
     {
         private Orientation _orientation;
-        private Point ClickedPos;
-        private Point OldSize;
+        private Point _clickedPos;
+        private Point _oldSize;
 
         /// <summary>
         /// Gets the split frame1.
@@ -90,7 +89,7 @@ namespace Squid
             Elements.Add(SplitFrame2);
 
             RetainAspect = true;
-            AspectRatio = (float)SplitFrame1.Size.x / (float)Size.x;
+            AspectRatio = (float)SplitFrame1.Size.X / (float)Size.X;
         }
 
         private void ChangeOrientation()
@@ -98,14 +97,14 @@ namespace Squid
             if (Orientation == Orientation.Horizontal)
             {
                 SplitFrame1.Dock = DockStyle.Left;
-                SplitButton.Size = new Point(SplitButton.Size.y, 10);
+                SplitButton.Size = new Point(SplitButton.Size.Y, 10);
                 SplitButton.Dock = DockStyle.Left;
                 SplitButton.Cursor = CursorNames.VSplit;
             }
             else
             {
                 SplitFrame1.Dock = DockStyle.Top;
-                SplitButton.Size = new Point(10, SplitButton.Size.x);
+                SplitButton.Size = new Point(10, SplitButton.Size.X);
                 SplitButton.Dock = DockStyle.Top;
                 SplitButton.Cursor = CursorNames.HSplit;
             }
@@ -115,25 +114,25 @@ namespace Squid
         {
             if (args.Button > 0) return;
 
-            ClickedPos = Gui.MousePosition;
-            OldSize = SplitFrame1.Size;
+            _clickedPos = Gui.MousePosition;
+            _oldSize = SplitFrame1.Size;
         }
 
         void SplitButton_MousePress(Control sender, MouseEventArgs args)
         {
             if (args.Button > 0) return;
 
-            Point p = Gui.MousePosition - ClickedPos;
+            var p = Gui.MousePosition - _clickedPos;
 
             if (Orientation == Orientation.Horizontal)
             {
-                SplitFrame1.ResizeTo(OldSize + p, AnchorStyles.Right);
-                AspectRatio = (float)SplitFrame1.Size.x / (float)Size.x;
+                SplitFrame1.ResizeTo(_oldSize + p, AnchorStyles.Right);
+                AspectRatio = (float)SplitFrame1.Size.X / (float)Size.X;
             }
             else
             {
-                SplitFrame1.ResizeTo(OldSize + p, AnchorStyles.Bottom);
-                AspectRatio = (float)SplitFrame1.Size.y / (float)Size.y;
+                SplitFrame1.ResizeTo(_oldSize + p, AnchorStyles.Bottom);
+                AspectRatio = (float)SplitFrame1.Size.Y / (float)Size.Y;
             }
         }
 
@@ -144,9 +143,9 @@ namespace Squid
                 if (Desktop.PressedControl != SplitButton)
                 {
                     if (Orientation == Orientation.Horizontal)
-                        SplitFrame1.Size = new Point((int)(AspectRatio * Size.x), SplitFrame1.Size.y);
+                        SplitFrame1.Size = new Point((int)(AspectRatio * Size.X), SplitFrame1.Size.Y);
                     else
-                        SplitFrame1.Size = new Point(SplitFrame1.Size.x, (int)(AspectRatio * Size.y));
+                        SplitFrame1.Size = new Point(SplitFrame1.Size.X, (int)(AspectRatio * Size.Y));
                 }
             }
         }

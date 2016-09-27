@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace Squid
+namespace MonoGame.Squid.Skinning
 {
     /// <summary>
     /// A collection of ControlStyles

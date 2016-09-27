@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using MonoGame.Squid.Structs;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>Rectangle packer using an algorithm by Javier Arevalo</summary>
     /// <remarks>
@@ -53,25 +54,25 @@ namespace Squid
 
         private struct PackingRectangle
         {
-            public int y;
-            public int x;
-            public int Width;
-            public int Height;
+            public int Y;
+            public int X;
+            public readonly int Width;
+            public readonly int Height;
 
-            public int Right { get { return x + Width; } }
-            public int Bottom { get { return y + Height; } }
+            public int Right { get { return X + Width; } }
+            public int Bottom { get { return Y + Height; } }
 
             public PackingRectangle(int x, int y, int width, int height)
             {
-                this.x = x;
-                this.y = y;
+                this.X = x;
+                this.Y = y;
                 Width = width;
                 Height = height;
             }
 
             public bool Intersects(PackingRectangle value)
             {
-                return ((((value.x < (x + Width)) && (x < (value.x + value.Width))) && (value.y < (y + Height))) && (y < (value.y + value.Height)));
+                return ((((value.X < (X + Width)) && (X < (value.X + value.Width))) && (value.Y < (Y + Height))) && (Y < (value.Y + value.Height)));
             }
         }
 
@@ -92,7 +93,7 @@ namespace Squid
         {
 
             /// <summary>Provides a default instance for the anchor rank comparer</summary>
-            public static AnchorRankComparer Default = new AnchorRankComparer();
+            public static readonly AnchorRankComparer Default = new AnchorRankComparer();
 
             /// <summary>Compares the rank of two anchors against each other</summary>
             /// <param name="left">Left anchor point that will be compared</param>
@@ -101,7 +102,7 @@ namespace Squid
             public int Compare(Point left, Point right)
             {
                 //return Math.Min(left.x, left.y) - Math.Min(right.x, right.y);
-                return (left.x + left.y) - (right.x + right.y);
+                return (left.X + left.Y) - (right.X + right.Y);
             }
 
         }
@@ -109,24 +110,24 @@ namespace Squid
         #endregion
 
         /// <summary>Maximum allowed width of the packing area</summary>
-        private int packingAreaWidth;
+        private readonly int _packingAreaWidth;
         /// <summary>Maximum allowed height of the packing area</summary>
-        private int packingAreaHeight;
+        private readonly int _packingAreaHeight;
 
         /// <summary>Initializes a new rectangle packer</summary>
         /// <param name="packingAreaWidth">Maximum width of the packing area</param>
         /// <param name="packingAreaHeight">Maximum height of the packing area</param>
         public RectanglePacker(int packingAreaWidth, int packingAreaHeight)
         {
-            this.packingAreaWidth = packingAreaWidth;
-            this.packingAreaHeight = packingAreaHeight;
+            this._packingAreaWidth = packingAreaWidth;
+            this._packingAreaHeight = packingAreaHeight;
 
-            this.packedRectangles = new List<PackingRectangle>();
-            this.anchors = new List<Point>();
-            this.anchors.Add(new Point(0, 0));
+            this._packedRectangles = new List<PackingRectangle>();
+            this._anchors = new List<Point>();
+            this._anchors.Add(new Point(0, 0));
 
-            this.actualPackingAreaWidth = 1;
-            this.actualPackingAreaHeight = 1;
+            this._actualPackingAreaWidth = 1;
+            this._actualPackingAreaHeight = 1;
         }
 
         /// <summary>Tries to allocate space for a rectangle in the packing area</summary>
@@ -136,46 +137,46 @@ namespace Squid
         /// <returns>True if space for the rectangle could be allocated</returns>
         public Point Pack(int rectangleWidth, int rectangleHeight)
         {
-            Point placement = Point.Zero;
+            var placement = Point.Zero;
             // Try to find an anchor where the rectangle fits in, enlarging the packing
             // area and repeating the search recursively until it fits or the
             // maximum allowed size is exceeded.
-            int anchorIndex = selectAnchorRecursive(
+            var anchorIndex = SelectAnchorRecursive(
               rectangleWidth, rectangleHeight,
-              this.actualPackingAreaWidth, this.actualPackingAreaHeight
+              this._actualPackingAreaWidth, this._actualPackingAreaHeight
             );
 
             // No anchor could be found at which the rectangle did fit in
             if (anchorIndex == -1)
                 return Point.Zero;
 
-            placement = this.anchors[anchorIndex];
+            placement = this._anchors[anchorIndex];
 
             // Move the rectangle either to the left or to the top until it collides with
             // a neightbouring rectangle. This is done to combat the effect of lining up
             // rectangles with gaps to the left or top of them because the anchor that
             // would allow placement there has been blocked by another rectangle
-            optimizePlacement(ref placement, rectangleWidth, rectangleHeight);
+            OptimizePlacement(ref placement, rectangleWidth, rectangleHeight);
 
             // Remove the used anchor and add new anchors at the upper right and lower left
             // positions of the new rectangle
             {
                 // The anchor is only removed if the placement optimization didn't
                 // move the rectangle so far that the anchor isn't blocked anymore
-                bool blocksAnchor =
-                  ((placement.x + rectangleWidth) > this.anchors[anchorIndex].x) &&
-                  ((placement.y + rectangleHeight) > this.anchors[anchorIndex].y);
+                var blocksAnchor =
+                  ((placement.X + rectangleWidth) > this._anchors[anchorIndex].X) &&
+                  ((placement.Y + rectangleHeight) > this._anchors[anchorIndex].Y);
 
                 if (blocksAnchor)
-                    this.anchors.RemoveAt(anchorIndex);
+                    this._anchors.RemoveAt(anchorIndex);
 
                 // Add new anchors at the upper right and lower left coordinates of the rectangle
-                insertAnchor(new Point(placement.x + rectangleWidth, placement.y));
-                insertAnchor(new Point(placement.x, placement.y + rectangleHeight));
+                InsertAnchor(new Point(placement.X + rectangleWidth, placement.Y));
+                InsertAnchor(new Point(placement.X, placement.Y + rectangleHeight));
             }
 
             // Finally, we can add the rectangle to our packed rectangles list
-            this.packedRectangles.Add(new PackingRectangle(placement.x, placement.y, rectangleWidth, rectangleHeight)
+            this._packedRectangles.Add(new PackingRectangle(placement.X, placement.Y, rectangleWidth, rectangleHeight)
             );
 
             return placement;
@@ -189,38 +190,38 @@ namespace Squid
         /// <param name="placement">Placement to be optimized</param>
         /// <param name="rectangleWidth">Width of the rectangle to be optimized</param>
         /// <param name="rectangleHeight">Height of the rectangle to be optimized</param>
-        private void optimizePlacement(
+        private void OptimizePlacement(
           ref Point placement, int rectangleWidth, int rectangleHeight
         )
         {
-            PackingRectangle rectangle = new PackingRectangle(
-            placement.x, placement.y, rectangleWidth, rectangleHeight
+            var rectangle = new PackingRectangle(
+            placement.X, placement.Y, rectangleWidth, rectangleHeight
           );
 
             // Try to move the rectangle to the left as far as possible
-            int leftMost = placement.x;
-            while (isFree(ref rectangle, packingAreaWidth, packingAreaHeight))
+            var leftMost = placement.X;
+            while (IsFree(ref rectangle, _packingAreaWidth, _packingAreaHeight))
             {
-                leftMost = rectangle.x;
-                --rectangle.x;
+                leftMost = rectangle.X;
+                --rectangle.X;
             }
 
             // Reset rectangle to original position
-            rectangle.x = placement.x;
+            rectangle.X = placement.X;
 
             // Try to move the rectangle upwards as far as possible
-            int topMost = placement.y;
-            while (isFree(ref rectangle, packingAreaWidth, packingAreaHeight))
+            var topMost = placement.Y;
+            while (IsFree(ref rectangle, _packingAreaWidth, _packingAreaHeight))
             {
-                topMost = rectangle.y;
-                --rectangle.y;
+                topMost = rectangle.Y;
+                --rectangle.Y;
             }
 
             // Use the dimension in which the rectangle could be moved farther
-            if ((placement.x - leftMost) > (placement.y - topMost))
-                placement.x = leftMost;
+            if ((placement.X - leftMost) > (placement.Y - topMost))
+                placement.X = leftMost;
             else
-                placement.y = topMost;
+                placement.Y = topMost;
         }
 
         /// <summary>
@@ -235,14 +236,14 @@ namespace Squid
         ///   Index of the anchor the rectangle is to be placed at or -1 if the rectangle
         ///   does not fit in the packing area anymore.
         /// </returns>
-        private int selectAnchorRecursive(
+        private int SelectAnchorRecursive(
           int rectangleWidth, int rectangleHeight,
           int testedPackingAreaWidth, int testedPackingAreaHeight
         )
         {
 
             // Try to locate an anchor point where the rectangle fits in
-            int freeAnchorIndex = findFirstFreeAnchor(
+            var freeAnchorIndex = FindFirstFreeAnchor(
               rectangleWidth, rectangleHeight, testedPackingAreaWidth, testedPackingAreaHeight
             );
 
@@ -251,8 +252,8 @@ namespace Squid
             // anchor at which the rectangle can be placed.
             if (freeAnchorIndex != -1)
             {
-                this.actualPackingAreaWidth = testedPackingAreaWidth;
-                this.actualPackingAreaHeight = testedPackingAreaHeight;
+                this._actualPackingAreaWidth = testedPackingAreaWidth;
+                this._actualPackingAreaHeight = testedPackingAreaHeight;
 
                 return freeAnchorIndex;
             }
@@ -264,9 +265,9 @@ namespace Squid
 
             // For readability, determine whether the packing area can be enlarged
             // any further in its width and in its height
-            bool canEnlargeWidth = (testedPackingAreaWidth < packingAreaWidth);
-            bool canEnlargeHeight = (testedPackingAreaHeight < packingAreaHeight);
-            bool shouldEnlargeHeight =
+            var canEnlargeWidth = (testedPackingAreaWidth < _packingAreaWidth);
+            var canEnlargeHeight = (testedPackingAreaHeight < _packingAreaHeight);
+            var shouldEnlargeHeight =
               (!canEnlargeWidth) ||
               (testedPackingAreaHeight < testedPackingAreaWidth);
 
@@ -277,9 +278,9 @@ namespace Squid
             {
 
                 // Try to double the height of the packing area
-                return selectAnchorRecursive(
+                return SelectAnchorRecursive(
                   rectangleWidth, rectangleHeight,
-                  testedPackingAreaWidth, Math.Min(testedPackingAreaHeight * 2, packingAreaHeight)
+                  testedPackingAreaWidth, Math.Min(testedPackingAreaHeight * 2, _packingAreaHeight)
                 );
 
             }
@@ -287,9 +288,9 @@ namespace Squid
             {
 
                 // Try to double the width of the packing area
-                return selectAnchorRecursive(
+                return SelectAnchorRecursive(
                   rectangleWidth, rectangleHeight,
-                  Math.Min(testedPackingAreaWidth * 2, packingAreaWidth), testedPackingAreaHeight
+                  Math.Min(testedPackingAreaWidth * 2, _packingAreaWidth), testedPackingAreaHeight
                 );
 
             }
@@ -310,25 +311,25 @@ namespace Squid
         /// <param name="testedPackingAreaWidth">Total width of the packing area</param>
         /// <param name="testedPackingAreaHeight">Total height of the packing area</param>
         /// <returns>The index of the first free anchor or -1 if none is found</returns>
-        private int findFirstFreeAnchor(
+        private int FindFirstFreeAnchor(
           int rectangleWidth, int rectangleHeight,
           int testedPackingAreaWidth, int testedPackingAreaHeight
         )
         {
-            PackingRectangle potentialLocation = new PackingRectangle(
+            var potentialLocation = new PackingRectangle(
             0, 0, rectangleWidth, rectangleHeight
           );
 
             // Walk over all anchors (which are ordered by their distance to the
             // upper left corner of the packing area) until one is discovered that
             // can house the new rectangle.
-            for (int index = 0; index < this.anchors.Count; ++index)
+            for (var index = 0; index < this._anchors.Count; ++index)
             {
-                potentialLocation.x = this.anchors[index].x;
-                potentialLocation.y = this.anchors[index].y;
+                potentialLocation.X = this._anchors[index].X;
+                potentialLocation.Y = this._anchors[index].Y;
 
                 // See if the rectangle would fit in at this anchor point
-                if (isFree(ref potentialLocation, testedPackingAreaWidth, testedPackingAreaHeight))
+                if (IsFree(ref potentialLocation, testedPackingAreaWidth, testedPackingAreaHeight))
                     return index;
             }
 
@@ -344,16 +345,16 @@ namespace Squid
         /// <param name="testedPackingAreaWidth">Total width of the packing area</param>
         /// <param name="testedPackingAreaHeight">Total height of the packing area</param>
         /// <returns>True if the rectangle can be placed at its current position</returns>
-        private bool isFree(
+        private bool IsFree(
           ref PackingRectangle rectangle, int testedPackingAreaWidth, int testedPackingAreaHeight
         )
         {
 
             // If the rectangle is partially or completely outside of the packing
             // area, it can't be placed at its current location
-            bool leavesPackingArea =
-              (rectangle.x < 0) ||
-              (rectangle.y < 0) ||
+            var leavesPackingArea =
+              (rectangle.X < 0) ||
+              (rectangle.Y < 0) ||
               (rectangle.Right > testedPackingAreaWidth) ||
               (rectangle.Bottom > testedPackingAreaHeight);
 
@@ -362,10 +363,10 @@ namespace Squid
 
             // Brute-force search whether the rectangle touches any of the other
             // rectangles already in the packing area
-            for (int index = 0; index < this.packedRectangles.Count; ++index)
+            for (var index = 0; index < this._packedRectangles.Count; ++index)
             {
 
-                if (this.packedRectangles[index].Intersects(rectangle))
+                if (this._packedRectangles[index].Intersects(rectangle))
                     return false;
 
             }
@@ -382,7 +383,7 @@ namespace Squid
         ///   This method tries to keep the anchor list ordered by ranking the anchors
         ///   depending on the distance from the top left corner in the packing area.
         /// </remarks>
-        private void insertAnchor(Point anchor)
+        private void InsertAnchor(Point anchor)
         {
 
             // Find out where to insert the new anchor based on its rank (which is
@@ -394,23 +395,23 @@ namespace Squid
             //    a negative integer. You can apply the bitwise complement operation (~) to
             //    this negative integer to get the index of the first element that is
             //    larger than the search value."
-            int insertIndex = this.anchors.BinarySearch(anchor, AnchorRankComparer.Default);
+            var insertIndex = this._anchors.BinarySearch(anchor, AnchorRankComparer.Default);
             if (insertIndex < 0)
                 insertIndex = ~insertIndex;
 
             // Insert the anchor at the index matching its rank
-            this.anchors.Insert(insertIndex, anchor);
+            this._anchors.Insert(insertIndex, anchor);
 
         }
 
         /// <summary>Current width of the packing area</summary>
-        private int actualPackingAreaWidth;
+        private int _actualPackingAreaWidth;
         /// <summary>Current height of the packing area</summary>
-        private int actualPackingAreaHeight;
+        private int _actualPackingAreaHeight;
         /// <summary>Rectangles contained in the packing area</summary>
-        private List<PackingRectangle> packedRectangles;
+        private readonly List<PackingRectangle> _packedRectangles;
         /// <summary>Anchoring points where new rectangles can potentially be placed</summary>
-        private List<Point> anchors;
+        private readonly List<Point> _anchors;
 
     }
 

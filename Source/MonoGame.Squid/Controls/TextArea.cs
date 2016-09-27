@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Skinning;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A multiline text input. Text does not scroll. (use a Panel).
@@ -11,19 +14,19 @@ namespace Squid
     [Toolbox]
     public class TextArea : Control, IText
     {
-        private float BlinkTime;
-        private int DoBlink;
-        private bool HasFocus;
-        private string SavedText;
-        private List<TextLine> Lines = new List<TextLine>();
-        private bool IsDirty;
-        private Point TextSize;
-        private string ActiveHref;
-        private Point LastSize;
+        private float _blinkTime;
+        private int _doBlink;
+        private bool _hasFocus;
+        private string _savedText;
+        private readonly List<TextLine> _lines = new List<TextLine>();
+        private bool _isDirty;
+        private Point _textSize;
+        private string _activeHref;
+        private Point _lastSize;
         private string _text = string.Empty;
         // private int Ln;
         // private int Col;
-        private int Caret = 0;
+        private int _caret = 0;
 
         private bool IsSelection { get { return _selectStart != _selectEnd; } }
         private int _selectStart = 0;
@@ -118,8 +121,8 @@ namespace Squid
                 _text = value.Replace("\r\n", "\n");
                 //_text = value;
 
-                Caret = _text.Length;
-                IsDirty = true;
+                _caret = _text.Length;
+                _isDirty = true;
 
                 _selectStart = 0;
                 _selectEnd = 0;
@@ -134,7 +137,7 @@ namespace Squid
             //_text = text.Replace("\r\n", "\n");
             _text = text;
 
-            IsDirty = true;
+            _isDirty = true;
             if (TextChanged != null)
                 TextChanged(this);
         }
@@ -165,7 +168,7 @@ namespace Squid
         /// <returns>System.Int32.</returns>
         public int GetCursor()
         {
-            return Caret;
+            return _caret;
         }
 
         /// <summary>
@@ -174,8 +177,8 @@ namespace Squid
         /// <param name="index">The index.</param>
         public void SetCursor(int index)
         {
-            Caret = Math.Min(_text.Length, Math.Max(0, index));
-            _selectStart = _selectEnd = Caret;
+            _caret = Math.Min(_text.Length, Math.Max(0, index));
+            _selectStart = _selectEnd = _caret;
         }
 
         /// <summary>
@@ -187,7 +190,7 @@ namespace Squid
         {
             _selectStart = Math.Min(_text.Length, Math.Max(0, start));
             _selectEnd = Math.Min(_text.Length, Math.Max(0, end));
-            Caret = _selectEnd;
+            _caret = _selectEnd;
         }
 
         /// <summary>
@@ -203,8 +206,8 @@ namespace Squid
                 {
                     if (_text == null || _text.Length == 0) return string.Empty;
 
-                    int start = SelectionStart;
-                    int end = SelectionEnd;
+                    var start = SelectionStart;
+                    var end = SelectionEnd;
 
                     return _text.Substring(start, end - start);
                 }
@@ -229,7 +232,7 @@ namespace Squid
             TextColor = -1;
             BlinkColor = -1;
             BlinkInterval = 500;
-            SelectionColor = ColorInt.ARGB(.5f, 1, 1, 1);
+            SelectionColor = ColorInt.Argb(.5f, 1, 1, 1);
 
             Style = "textbox";
             Cursor = CursorNames.Select;
@@ -246,12 +249,12 @@ namespace Squid
 
         protected override void OnUpdate()
         {
-            BlinkTime += Gui.TimeElapsed;
+            _blinkTime += Gui.TimeElapsed;
 
-            if (BlinkTime > BlinkInterval)
+            if (_blinkTime > BlinkInterval)
             {
-                DoBlink = 1 - DoBlink;
-                BlinkTime = 0;
+                _doBlink = 1 - _doBlink;
+                _blinkTime = 0;
             }
 
             base.OnUpdate();
@@ -259,13 +262,13 @@ namespace Squid
 
         void TextBox_GotFocus(Control sender)
         {
-            SavedText = _text;
-            HasFocus = true;
+            _savedText = _text;
+            _hasFocus = true;
         }
 
         void TextBox_LostFocus(Control sender)
         {
-            HasFocus = false;
+            _hasFocus = false;
 
             if (TextCommit != null)
                 TextCommit(this, null);
@@ -277,44 +280,44 @@ namespace Squid
 
         void TextBox_MousePress(Control sender, MouseEventArgs args)
         {
-            Point m = Gui.MousePosition;
-            int total = 0;
+            var m = Gui.MousePosition;
+            var total = 0;
             Rectangle rect;
 
-            foreach (TextLine line in Lines)
+            foreach (var line in _lines)
             {
-                for (int i = 0; i < line.Elements.Count; i++)
+                for (var i = 0; i < line.Elements.Count; i++)
                 {
-                    bool firstElement = i == 0;
-                    bool lastElement = i == line.Elements.Count - 1;
+                    var firstElement = i == 0;
+                    var lastElement = i == line.Elements.Count - 1;
 
                     rect = line.Elements[i].Rectangle;
 
                     if (firstElement)
-                        rect.Left = Location.x;
+                        rect.Left = Location.X;
 
                     if (lastElement)
-                        rect.Right = Location.x + Size.x;
+                        rect.Right = Location.X + Size.X;
 
                     if (lastElement && line.Elements[i].Linebreak)
                     {
-                        rect.Top -= line.Elements[i].Size.y;
-                        rect.Bottom -= line.Elements[i].Size.y;
+                        rect.Top -= line.Elements[i].Size.Y;
+                        rect.Bottom -= line.Elements[i].Size.Y;
                     }
 
                     if (rect.Contains(m))
                     {
-                        Point p = new Point(line.Elements[i].Rectangle.Left, line.Elements[i].Rectangle.Top);
-                        Point mb = m - p;
-                        int font = Gui.Renderer.GetFont(line.Elements[i].Font);
-                        int off = 0;
-                        int c = 0;
+                        var p = new Point(line.Elements[i].Rectangle.Left, line.Elements[i].Rectangle.Top);
+                        var mb = m - p;
+                        var font = Gui.Renderer.GetFont(line.Elements[i].Font);
+                        var off = 0;
+                        var c = 0;
 
                         while (c < line.Elements[i].Text.Length)
                         {
-                            off = Gui.Renderer.GetTextSize(line.Elements[i].Text.Substring(0, c), font).x;
+                            off = Gui.Renderer.GetTextSize(line.Elements[i].Text.Substring(0, c), font).X;
 
-                            if (off > mb.x)
+                            if (off > mb.X)
                                 break;
 
                             c++;
@@ -334,50 +337,50 @@ namespace Squid
 
         void TextBox_MouseDown(Control sender, MouseEventArgs args)
         {
-            Point m = Gui.MousePosition;
-            int total = 0;
+            var m = Gui.MousePosition;
+            var total = 0;
             Rectangle rect;
 
-            foreach (TextLine line in Lines)
+            foreach (var line in _lines)
             {
-                for (int i = 0; i < line.Elements.Count; i++)
+                for (var i = 0; i < line.Elements.Count; i++)
                 {
-                    bool firstElement = i == 0;
-                    bool lastElement = i == line.Elements.Count - 1;
+                    var firstElement = i == 0;
+                    var lastElement = i == line.Elements.Count - 1;
 
                     rect = line.Elements[i].Rectangle;
 
                     if (firstElement)
-                        rect.Left = Location.x;
+                        rect.Left = Location.X;
 
                     if (lastElement)
-                        rect.Right = Location.x + Size.x;
+                        rect.Right = Location.X + Size.X;
 
                     if (lastElement && line.Elements[i].Linebreak)
                     {
-                        rect.Top -= line.Elements[i].Size.y;
-                        rect.Bottom -= line.Elements[i].Size.y;
+                        rect.Top -= line.Elements[i].Size.Y;
+                        rect.Bottom -= line.Elements[i].Size.Y;
                     }
 
                     if (rect.Contains(m))
                     {
-                        Point p = new Point(line.Elements[i].Rectangle.Left, line.Elements[i].Rectangle.Top);
-                        Point mb = m - p;
-                        int font = Gui.Renderer.GetFont(line.Elements[i].Font);
-                        int off = 0;
-                        int c = 0;
+                        var p = new Point(line.Elements[i].Rectangle.Left, line.Elements[i].Rectangle.Top);
+                        var mb = m - p;
+                        var font = Gui.Renderer.GetFont(line.Elements[i].Font);
+                        var off = 0;
+                        var c = 0;
 
                         while (c < line.Elements[i].Text.Length)
                         {
-                            off = Gui.Renderer.GetTextSize(line.Elements[i].Text.Substring(0, c), font).x;
+                            off = Gui.Renderer.GetTextSize(line.Elements[i].Text.Substring(0, c), font).X;
 
-                            if (off > mb.x)
+                            if (off > mb.X)
                                 break;
 
                             c++;
                         }
 
-                        _selectStart = _selectEnd = Caret = total + c;
+                        _selectStart = _selectEnd = _caret = total + c;
                         return;
                     }
 
@@ -422,61 +425,61 @@ namespace Squid
 
             if (Gui.CtrlPressed)
             {
-                string masked = _text;
+                var masked = _text;
 
                 if (Gui.ShiftPressed)
                 {
-                    if (_selectStart == Caret)
+                    if (_selectStart == _caret)
                     {
-                        Caret = _selectStart = FindIndexLeft(_selectStart, masked);
+                        _caret = _selectStart = FindIndexLeft(_selectStart, masked);
                     }
-                    else if (_selectEnd == Caret)
+                    else if (_selectEnd == _caret)
                     {
-                        int index = FindIndexLeft(_selectEnd, masked);
+                        var index = FindIndexLeft(_selectEnd, masked);
 
                         if (index < _selectStart)
                         {
                             _selectEnd = _selectStart;
                             _selectStart = index;
-                            Caret = index;
+                            _caret = index;
                         }
                         else
-                            Caret = _selectEnd = index;
+                            _caret = _selectEnd = index;
                     }
                 }
                 else
                 {
-                    _selectStart = _selectEnd = Caret = FindIndexLeft(Caret, masked);
+                    _selectStart = _selectEnd = _caret = FindIndexLeft(_caret, masked);
                 }
             }
             else
             {
-                if (Caret > 0)
+                if (_caret > 0)
                 {
                     if (Gui.ShiftPressed)
                     {
-                        if (_selectStart == Caret)
+                        if (_selectStart == _caret)
                             _selectStart--;
-                        else if (_selectEnd == Caret)
+                        else if (_selectEnd == _caret)
                             _selectEnd--;
-                        Caret--;
+                        _caret--;
                     }
                     else
                     {
                         if (IsSelection)
                         {
-                            _selectStart = _selectEnd = Caret;
+                            _selectStart = _selectEnd = _caret;
                         }
                         else
                         {
-                            Caret--;
-                            _selectStart = _selectEnd = Caret;
+                            _caret--;
+                            _selectStart = _selectEnd = _caret;
                         }
                     }
                 }
                 else if (!Gui.ShiftPressed)
                 {
-                    _selectStart = _selectEnd = Caret;
+                    _selectStart = _selectEnd = _caret;
                 }
             }
         }
@@ -490,112 +493,112 @@ namespace Squid
             {
                 if (Gui.ShiftPressed)
                 {
-                    if (_selectEnd == Caret)
+                    if (_selectEnd == _caret)
                     {
-                        int index = FindIndexRight(_selectEnd, _text);
+                        var index = FindIndexRight(_selectEnd, _text);
 
-                        Caret = _selectEnd = index;
+                        _caret = _selectEnd = index;
                     }
-                    else if (_selectStart == Caret)
+                    else if (_selectStart == _caret)
                     {
-                        int index = FindIndexRight(_selectStart, _text);
+                        var index = FindIndexRight(_selectStart, _text);
                         if (index > _selectEnd)
                         {
                             _selectStart = _selectEnd;
                             _selectEnd = index;
-                            Caret = index;
+                            _caret = index;
                         }
                         else
-                            Caret = _selectStart = index;
+                            _caret = _selectStart = index;
                     }
                 }
                 else
                 {
-                    _selectStart = _selectEnd = Caret = FindIndexRight(Caret, _text);
+                    _selectStart = _selectEnd = _caret = FindIndexRight(_caret, _text);
                 }
             }
             else
             {
-                if (Caret < _text.Length)
+                if (_caret < _text.Length)
                 {
                     if (Gui.ShiftPressed)
                     {
-                        if (_selectEnd == Caret)
+                        if (_selectEnd == _caret)
                             _selectEnd++;
-                        else if (_selectStart == Caret)
+                        else if (_selectStart == _caret)
                             _selectStart++;
 
-                        Caret++;
+                        _caret++;
                     }
                     else
                     {
                         if (IsSelection)
                         {
-                            _selectStart = _selectEnd = Caret;
+                            _selectStart = _selectEnd = _caret;
                         }
                         else
                         {
-                            Caret++;
-                            _selectStart = _selectEnd = Caret;
+                            _caret++;
+                            _selectStart = _selectEnd = _caret;
                         }
                     }
                 }
                 else if (!Gui.ShiftPressed)
                 {
-                    _selectStart = _selectEnd = Caret;
+                    _selectStart = _selectEnd = _caret;
                 }
             }
         }
 
         private void HandleUpArrow()
         {
-            int textlength = 0;
-            int lastline = 0;
+            var textlength = 0;
+            var lastline = 0;
 
             if (Gui.ShiftPressed)
             {
                 if (!IsSelection)
-                    _selectStart = Caret;
+                    _selectStart = _caret;
             }
             else
             {
                 _selectStart = _selectEnd = 0;
             }
 
-            for (int i = 0; i < Lines.Count; i++)
+            for (var i = 0; i < _lines.Count; i++)
             {
-                TextLine line = Lines[i];
+                var line = _lines[i];
 
-                if (textlength + line.CharLength > Caret)
+                if (textlength + line.CharLength > _caret)
                 {
-                    int left = Caret - textlength;
+                    var left = _caret - textlength;
 
                     if (i > 0 && left > -1)
                     {
-                        int lastlen = Lines[i - 1].CharLength;
-                        Caret = textlength + Math.Min(lastlen - 1, left) - lastlen;
+                        var lastlen = _lines[i - 1].CharLength;
+                        _caret = textlength + Math.Min(lastlen - 1, left) - lastlen;
 
                         if (Gui.ShiftPressed)
-                            _selectEnd = Caret;
+                            _selectEnd = _caret;
 
                         break;
                     }
                 }
-                else if (textlength + line.CharLength == Caret)
+                else if (textlength + line.CharLength == _caret)
                 {
-                    int left = 0;
+                    var left = 0;
 
                     if (i > 0 && left > -1)
                     {
-                        int lastlen = Lines[i - 1].CharLength;
+                        var lastlen = _lines[i - 1].CharLength;
 
-                        if (i == Lines.Count - 1)
-                            Caret = lastline + Math.Min(lastlen - 1, line.CharLength);
+                        if (i == _lines.Count - 1)
+                            _caret = lastline + Math.Min(lastlen - 1, line.CharLength);
                         else
-                            Caret = textlength + Math.Min(lastlen - 1, left);
+                            _caret = textlength + Math.Min(lastlen - 1, left);
 
                         if (Gui.ShiftPressed)
-                            _selectEnd = Caret;
+                            _selectEnd = _caret;
 
                         break;
                     }
@@ -608,42 +611,42 @@ namespace Squid
 
         private void HandleDownArrow()
         {
-            int total = 0;
+            var total = 0;
 
             if (Gui.ShiftPressed)
             {
                 if (!IsSelection)
-                    _selectStart = Caret;
+                    _selectStart = _caret;
             }
             else
             {
                 _selectStart = _selectEnd = 0;
             }
 
-            for (int i = 0; i < Lines.Count; i++)
+            for (var i = 0; i < _lines.Count; i++)
             {
-                TextLine line = Lines[i];
+                var line = _lines[i];
 
-                if (total + line.CharLength > Caret)
+                if (total + line.CharLength > _caret)
                 {
-                    int left = Caret - total;
+                    var left = _caret - total;
 
-                    if (Lines.Count > i + 1)
+                    if (_lines.Count > i + 1)
                     {
-                        int nextlen = Lines[i + 1].CharLength;
+                        var nextlen = _lines[i + 1].CharLength;
 
-                        if (total + line.CharLength == Caret + 1 && i + 1 != Lines.Count - 1)
+                        if (total + line.CharLength == _caret + 1 && i + 1 != _lines.Count - 1)
                         {
                             if (left == 0 && line.CharLength == 1)
-                                Caret = total + line.CharLength + Math.Min(nextlen, left);
+                                _caret = total + line.CharLength + Math.Min(nextlen, left);
                             else
-                                Caret = total + line.CharLength - 1 + Math.Min(nextlen, left);
+                                _caret = total + line.CharLength - 1 + Math.Min(nextlen, left);
                         }
                         else
-                            Caret = total + line.CharLength + Math.Min(nextlen, left);
+                            _caret = total + line.CharLength + Math.Min(nextlen, left);
 
                         if (Gui.ShiftPressed)
-                            _selectEnd = Caret;
+                            _selectEnd = _caret;
 
                         break;
                     }
@@ -655,80 +658,80 @@ namespace Squid
 
         protected override void OnKeyDown(KeyEventArgs args)
         {
-            Desktop root = Desktop;
+            var root = Desktop;
             if (root == null) return;
 
-            BlinkTime = 0; DoBlink = 1;
+            _blinkTime = 0; _doBlink = 1;
 
-            if (args.Key == Keys.HOME && !ReadOnly) // home
+            if (args.Key == Keys.Home && !ReadOnly) // home
             {
                 if (Gui.ShiftPressed)
                 {
-                    if (_selectStart == Caret)
+                    if (_selectStart == _caret)
                     {
-                        Caret = _selectStart = 0;
+                        _caret = _selectStart = 0;
                     }
-                    else if (_selectEnd == Caret)
+                    else if (_selectEnd == _caret)
                     {
                         if (0 < _selectStart)
                         {
                             _selectEnd = _selectStart;
                             _selectStart = 0;
-                            Caret = 0;
+                            _caret = 0;
                         }
                         else
-                            Caret = _selectEnd = 0;
+                            _caret = _selectEnd = 0;
                     }
                 }
                 else
                 {
-                    Caret = 0;
-                    _selectStart = _selectEnd = Caret;
+                    _caret = 0;
+                    _selectStart = _selectEnd = _caret;
                 }
             }
-            else if (args.Key == Keys.END && !ReadOnly) // end
+            else if (args.Key == Keys.End && !ReadOnly) // end
             {
                 if (Gui.ShiftPressed)
                 {
-                    if (_selectEnd == Caret)
+                    if (_selectEnd == _caret)
                     {
-                        Caret = _selectEnd = _text.Length;
+                        _caret = _selectEnd = _text.Length;
                     }
-                    else if (_selectStart == Caret)
+                    else if (_selectStart == _caret)
                     {
                         if (_text.Length > _selectEnd)
                         {
                             _selectStart = _selectEnd;
                             _selectEnd = _text.Length;
-                            Caret = _text.Length;
+                            _caret = _text.Length;
                         }
                         else
-                            Caret = _selectStart = _text.Length;
+                            _caret = _selectStart = _text.Length;
                     }
                 }
                 else
                 {
-                    Caret = _text.Length;
-                    _selectStart = _selectEnd = Caret;
+                    _caret = _text.Length;
+                    _selectStart = _selectEnd = _caret;
                 }
             }
-            else if (args.Key == Keys.RIGHTARROW && !ReadOnly) // right arrow
+            else if (args.Key == Keys.Rightarrow && !ReadOnly) // right arrow
             {
                 HandleRightArrow();
             }
-            else if (args.Key == Keys.LEFTARROW && !ReadOnly) // left arrow
+            else if (args.Key == Keys.Leftarrow && !ReadOnly) // left arrow
             {
                 HandleLeftArrow();
             }
-            else if (args.Key == Keys.UPARROW && !ReadOnly) // up arrow
+            else if (args.Key == Keys.Uparrow && !ReadOnly) // up arrow
             {
                 HandleUpArrow();
             }
-            else if (args.Key == Keys.DOWNARROW && !ReadOnly) // down arrow
+            else if (args.Key == Keys.Downarrow && !ReadOnly) // down arrow
             {
                 HandleDownArrow();
             }
-            else if (args.Key == Keys.BACKSPACE && !ReadOnly) // backspace
+            else if (args.Key == Keys.Backspace && !ReadOnly) // backspace
             {
                 //if (Caret > 0)
                 //{
@@ -740,55 +743,55 @@ namespace Squid
 
                 if (IsSelection)
                 {
-                    int start = SelectionStart;
-                    int end = SelectionEnd;
+                    var start = SelectionStart;
+                    var end = SelectionEnd;
 
                     SetText(_text.Remove(start, end - start));
-                    Caret = start;
+                    _caret = start;
                 }
                 else
                 {
-                    if (Caret > 0)
+                    if (_caret > 0)
                     {
-                        SetText(_text.Remove(Caret - 1, 1));
-                        if (Caret > 0) Caret--;
+                        SetText(_text.Remove(_caret - 1, 1));
+                        if (_caret > 0) _caret--;
                     }
                 }
 
-                _selectStart = _selectEnd = Caret;
+                _selectStart = _selectEnd = _caret;
             }
-            else if (args.Key == Keys.DELETE && !ReadOnly) // delete
+            else if (args.Key == Keys.Delete && !ReadOnly) // delete
             {
                 //if (_text.Length > Caret)
                 //    SetText(_text.Remove(Caret, 1));
 
                 if (IsSelection)
                 {
-                    int start = SelectionStart;
-                    int end = SelectionEnd;
+                    var start = SelectionStart;
+                    var end = SelectionEnd;
 
                     SetText(_text.Remove(start, end - start));
-                    Caret = start;
+                    _caret = start;
                 }
                 else
                 {
-                    if (_text.Length > Caret)
-                        SetText(_text.Remove(Caret, 1));
+                    if (_text.Length > _caret)
+                        SetText(_text.Remove(_caret, 1));
                 }
 
-                _selectStart = _selectEnd = Caret;
+                _selectStart = _selectEnd = _caret;
             }
-            else if (args.Key == Keys.RETURN || args.Key == Keys.NUMPADENTER) // return/enter
+            else if (args.Key == Keys.Return || args.Key == Keys.Numpadenter) // return/enter
             {
-                SetText(_text.Insert(Caret, "\n"));
-                Caret++;
+                SetText(_text.Insert(_caret, "\n"));
+                _caret++;
             }
-            else if (args.Key == Keys.ESCAPE)
+            else if (args.Key == Keys.Escape)
             {
                 LostFocus -= TextBox_LostFocus;
 
-                SetText(SavedText);
-                Caret = 0;
+                SetText(_savedText);
+                _caret = 0;
 
                 root.FocusedControl = null;
 
@@ -805,7 +808,7 @@ namespace Squid
                     {
                         _selectStart = 0;
                         _selectEnd = _text.Length;
-                        Caret = _text.Length;
+                        _caret = _text.Length;
                     }
                     else if (args.Key == Keys.C) // copy
                     {
@@ -819,62 +822,62 @@ namespace Squid
                         {
                             Gui.SetClipboard(Selection);
 
-                            int start = SelectionStart;
-                            int end = SelectionEnd;
+                            var start = SelectionStart;
+                            var end = SelectionEnd;
 
                             SetText(_text.Remove(start, end - start));
                             //Caret = start;
-                            _selectStart = _selectEnd = Caret = start;
+                            _selectStart = _selectEnd = _caret = start;
                         }
                     }
                     else if (args.Key == Keys.V && !ReadOnly) // pasteb
                     {
-                        string paste = Gui.GetClipboard().Replace("\r\n","\n");
+                        var paste = Gui.GetClipboard().Replace("\r\n","\n");
                         if (!string.IsNullOrEmpty(paste))
                         {
                             if (IsSelection)
                             {
-                                int start = SelectionStart;
-                                int end = SelectionEnd;
+                                var start = SelectionStart;
+                                var end = SelectionEnd;
 
                                 SetText(_text.Remove(start, end - start));
-                                Caret = start;
+                                _caret = start;
                             }
 
-                            SetText(_text.Insert(Caret, paste.ToString()));
+                            SetText(_text.Insert(_caret, paste.ToString()));
 
-                            if (Caret < _text.Length)
-                                Caret += paste.Length;
+                            if (_caret < _text.Length)
+                                _caret += paste.Length;
 
-                            _selectStart = _selectEnd = Caret;
+                            _selectStart = _selectEnd = _caret;
                         }
                     }
                 }
                 else
                 {
-                    if (args.Key != Keys.TAB)
+                    if (args.Key != Keys.Tab)
                     {
                         if (args.Char.HasValue)
                         {
-                            bool valid = true;
-                            char c = args.Char.Value;
+                            var valid = true;
+                            var c = args.Char.Value;
 
                             if (valid)
                             {
                                 if (IsSelection)
                                 {
-                                    int start = SelectionStart;
-                                    int end = SelectionEnd;
+                                    var start = SelectionStart;
+                                    var end = SelectionEnd;
 
                                     SetText(_text.Remove(start, end - start));
-                                    Caret = start;
+                                    _caret = start;
                                 }
 
-                                SetText(_text.Insert(Caret, c.ToString()));
-                                if (Caret < _text.Length)
-                                    Caret++;
+                                SetText(_text.Insert(_caret, c.ToString()));
+                                if (_caret < _text.Length)
+                                    _caret++;
 
-                                _selectStart = _selectEnd = Caret;
+                                _selectStart = _selectEnd = _caret;
                             }
                         }
                     }
@@ -884,106 +887,106 @@ namespace Squid
 
         private void UpdateText(Style style)
         {
-            Lines.Clear();
+            _lines.Clear();
 
             if (string.IsNullOrEmpty(_text)) return;
 
-            TextElement def = new TextElement();
+            var def = new TextElement();
             def.Font = style.Font;
 
-            List<TextElement> elements = BBCode.Parse(_text, style, false);
-            List<TextElement> textElements = new List<TextElement>();
+            var elements = BbCode.Parse(_text, style, false);
+            var textElements = new List<TextElement>();
 
-            Point pos = new Point();
-            Point tsize = new Point();
+            var pos = new Point();
+            var tsize = new Point();
 
-            int lineHeight = 0;
-            List<TextElement> thisLine = new List<TextElement>();
+            var lineHeight = 0;
+            var thisLine = new List<TextElement>();
 
-            TextSize = Point.Zero;
+            _textSize = Point.Zero;
 
             if (TextWrap)
             {
                 #region TextWrap = true
-                foreach (TextElement element in elements)
+                foreach (var element in elements)
                 {
-                    int font = Gui.Renderer.GetFont(element.Font);
+                    var font = Gui.Renderer.GetFont(element.Font);
 
                     if (element.Linebreak)
                     {
-                        pos.x = 0;
-                        pos.y += lineHeight + Leading;
+                        pos.X = 0;
+                        pos.Y += lineHeight + Leading;
 
                         element.Position = pos;
                         element.Size = Gui.Renderer.GetTextSize(" ", font);
 
-                        foreach (TextElement el in thisLine)
+                        foreach (var el in thisLine)
                         {
                             if (!el.Linebreak)
-                                el.Position.y += lineHeight - el.Size.y;
+                                el.Position.Y += lineHeight - el.Size.Y;
                         }
 
                         thisLine.Clear();
-                        lineHeight = element.Size.y;
+                        lineHeight = element.Size.Y;
                         textElements.Add(element);
                     }
                     else
                     {
                         #region wrap
 
-                        string[] words = element.Text.Split(' ');
+                        var words = element.Text.Split(' ');
 
-                        List<TextElement> sub = new List<TextElement>();
+                        var sub = new List<TextElement>();
 
-                        TextElement e = new TextElement(element);
+                        var e = new TextElement(element);
                         e.Text = string.Empty;
                         e.Position = pos;
                         sub.Add(e);
 
-                        int i = 0;
+                        var i = 0;
 
-                        foreach (string word in words)
+                        foreach (var word in words)
                         {
-                            string temp = word;
+                            var temp = word;
                             if (i > 0) temp = " " + word;
 
                             tsize = Gui.Renderer.GetTextSize(temp, font);
-                            lineHeight = Math.Max(lineHeight, tsize.y);
-                            int limit = Size.x - (style.TextPadding.Left + style.TextPadding.Right);
+                            lineHeight = Math.Max(lineHeight, tsize.Y);
+                            var limit = Size.X - (style.TextPadding.Left + style.TextPadding.Right);
 
                             i++;
 
                             // the word fits, add to current element
-                            if (pos.x + tsize.x < limit)
+                            if (pos.X + tsize.X < limit)
                             {
                                 e.Text += temp;
                                 e.Size = Gui.Renderer.GetTextSize(e.Text, font);
-                                pos.x += tsize.x;
+                                pos.X += tsize.X;
                             }
                             else
                             {
                                 // the whole word is larger than the text area
-                                if (tsize.x > limit)
+                                if (tsize.X > limit)
                                 {
 
                                 }
                                 // the whole word fits into text area
                                 else
                                 {
-                                    pos.x = 0;
-                                    pos.y += lineHeight + Leading;
+                                    pos.X = 0;
+                                    pos.Y += lineHeight + Leading;
                                     thisLine.Add(e);
 
-                                    foreach (TextElement el in thisLine)
+                                    foreach (var el in thisLine)
                                     {
                                         if (!el.Linebreak)
-                                            el.Position.y += lineHeight - el.Size.y;
+                                            el.Position.Y += lineHeight - el.Size.Y;
                                     }
 
                                     thisLine.Clear();
                                     lineHeight = 0;
 
-                                    TextElement linebreak = new TextElement(e);
+                                    var linebreak = new TextElement(e);
                                     linebreak.Text = string.Empty;
                                     linebreak.Linebreak = true;
                                     linebreak.Position = pos;
@@ -995,9 +998,9 @@ namespace Squid
                                     e.Size = Gui.Renderer.GetTextSize(e.Text, font);
                                     sub.Add(e);
 
-                                    lineHeight = Math.Max(lineHeight, e.Size.y);
+                                    lineHeight = Math.Max(lineHeight, e.Size.Y);
 
-                                    pos.x += tsize.x;
+                                    pos.X += tsize.X;
                                 }
                             }
                         }
@@ -1008,35 +1011,35 @@ namespace Squid
                     }
                 }
 
-                foreach (TextElement el in thisLine)
+                foreach (var el in thisLine)
                 {
                     if (!el.Linebreak)
-                        el.Position.y += lineHeight - el.Size.y;
+                        el.Position.Y += lineHeight - el.Size.Y;
                 }
                 #endregion
             }
             else
             {
-                foreach (TextElement element in elements)
+                foreach (var element in elements)
                 {
-                    int font = Gui.Renderer.GetFont(element.Font);
+                    var font = Gui.Renderer.GetFont(element.Font);
 
                     if (element.Linebreak)
                     {
-                        pos.x = 0;
-                        pos.y += lineHeight + Leading;
+                        pos.X = 0;
+                        pos.Y += lineHeight + Leading;
 
                         element.Position = pos;
                         element.Size = Gui.Renderer.GetTextSize(" ", font);
 
-                        foreach (TextElement el in thisLine)
+                        foreach (var el in thisLine)
                         {
                             if (!el.Linebreak)
-                                el.Position.y += lineHeight - el.Size.y;
+                                el.Position.Y += lineHeight - el.Size.Y;
                         }
 
                         thisLine.Clear();
-                        lineHeight = element.Size.y;
+                        lineHeight = element.Size.Y;
 
                         textElements.Add(element);
                     }
@@ -1045,56 +1048,56 @@ namespace Squid
                         //if (!string.IsNullOrEmpty(element.Text))
                         //{
                         tsize = Gui.Renderer.GetTextSize(string.IsNullOrEmpty(element.Text) ? " " : element.Text, font);
-                        lineHeight = Math.Max(lineHeight, tsize.y);
+                        lineHeight = Math.Max(lineHeight, tsize.Y);
 
                         element.Position = pos;
                         element.Size = tsize;
 
                         textElements.Add(element);
 
-                        pos.x += tsize.x;
+                        pos.X += tsize.X;
 
                         thisLine.Add(element);
                         //}
                     }
                 }
 
-                foreach (TextElement el in thisLine)
+                foreach (var el in thisLine)
                 {
                     if (!el.Linebreak)
-                        el.Position.y += lineHeight - el.Size.y;
+                        el.Position.Y += lineHeight - el.Size.Y;
                 }
 
             }
 
-            TextLine line = new TextLine();
+            var line = new TextLine();
 
-            foreach (TextElement element in textElements)
+            foreach (var element in textElements)
             {
                 if (element.Linebreak)
                 {
                     line.CharLength += 1;
                     line.Elements.Add(element);
-                    Lines.Add(line);
+                    _lines.Add(line);
                     line = new TextLine();
                 }
                 else
                 {
-                    line.Width += element.Size.x;
+                    line.Width += element.Size.X;
                     line.CharLength += element.Text.Length;
                     line.Elements.Add(element);
                 }
 
-                TextSize.x = Math.Max(TextSize.x, line.Width);
-                TextSize.y = Math.Max(TextSize.y, element.Position.y + element.Size.y);
+                _textSize.X = Math.Max(_textSize.X, line.Width);
+                _textSize.Y = Math.Max(_textSize.Y, element.Position.Y + element.Size.Y);
             }
 
-            Lines.Add(line);
+            _lines.Add(line);
 
-            TextSize += new Point(style.TextPadding.Left + style.TextPadding.Right, style.TextPadding.Top + style.TextPadding.Bottom);
+            _textSize += new Point(style.TextPadding.Left + style.TextPadding.Right, style.TextPadding.Top + style.TextPadding.Bottom);
 
-            LastSize = Size;
-            IsDirty = false;
+            _lastSize = Size;
+            _isDirty = false;
 
             //GetLineAndCol();
         }
@@ -1127,51 +1130,51 @@ namespace Squid
 
         protected override void OnStateChanged()
         {
-            Style style = Desktop.GetStyle(Style).Styles[State];
+            var style = Desktop.GetStyle(Style).Styles[State];
             UpdateText(style);
         }
 
         protected override void OnAutoSize()
         {
-            if (IsDirty)
+            if (_isDirty)
             {
-                Style style = Desktop.GetStyle(Style).Styles[State];
+                var style = Desktop.GetStyle(Style).Styles[State];
                 UpdateText(style);
             }
 
-            if (AutoSize == Squid.AutoSize.Vertical)
-                Size = new Point(Size.x, TextSize.y);
-            else if (AutoSize == Squid.AutoSize.Horizontal)
-                Size = new Point(TextSize.x, Size.y);
-            else if (AutoSize == Squid.AutoSize.HorizontalVertical)
-                Size = TextSize;
+            if (AutoSize == AutoSize.Vertical)
+                Size = new Point(Size.X, _textSize.Y);
+            else if (AutoSize == AutoSize.Horizontal)
+                Size = new Point(_textSize.X, Size.Y);
+            else if (AutoSize == AutoSize.HorizontalVertical)
+                Size = _textSize;
         }
 
         protected override void OnLateUpdate()
         {
-            if (!IsDirty)
-                IsDirty = LastSize.x != Size.x || LastSize.y != Size.y;
+            if (!_isDirty)
+                _isDirty = _lastSize.X != Size.X || _lastSize.Y != Size.Y;
 
-            if (IsDirty)
+            if (_isDirty)
             {
-                Style style = Desktop.GetStyle(Style).Styles[State];
+                var style = Desktop.GetStyle(Style).Styles[State];
                 UpdateText(style);
             }
 
             if (Desktop.HotControl == this)
             {
-                Point m = Gui.MousePosition;
-                ActiveHref = null;
+                var m = Gui.MousePosition;
+                _activeHref = null;
 
-                foreach (TextLine line in Lines)
+                foreach (var line in _lines)
                 {
-                    foreach (TextElement element in line.Elements)
+                    foreach (var element in line.Elements)
                     {
                         if (!element.IsLink) continue;
 
                         if (element.Rectangle.Contains(m))
                         {
-                            ActiveHref = element.Href;
+                            _activeHref = element.Href;
                             break;
                         }
                     }
@@ -1181,16 +1184,16 @@ namespace Squid
 
         protected override void DrawText(Style style, float opacity)
         {
-            if (IsDirty) UpdateText(style);
+            if (_isDirty) UpdateText(style);
 
             int font;
-            int total = 0;
-            int numLine = 0;
+            var total = 0;
+            var numLine = 0;
             Point p1, p2, size;
-            Alignment align = TextAlign != Alignment.Inherit ? TextAlign : style.TextAlign;
-            bool drawCaret = HasFocus && DoBlink > 0;
+            var align = TextAlign != Alignment.Inherit ? TextAlign : style.TextAlign;
+            var drawCaret = _hasFocus && _doBlink > 0;
 
-            if (Lines.Count == 0)
+            if (_lines.Count == 0)
             {
                 if (drawCaret)
                 {
@@ -1198,36 +1201,36 @@ namespace Squid
                     font = Gui.Renderer.GetFont(style.Font);
 
                     if (align == Alignment.TopLeft || align == Alignment.TopCenter || align == Alignment.TopRight)
-                        p1.y += style.TextPadding.Top;
+                        p1.Y += style.TextPadding.Top;
 
                     if (align == Alignment.BottomLeft || align == Alignment.BottomCenter || align == Alignment.BottomRight)
-                        p1.y += Size.y - TextSize.y;
+                        p1.Y += Size.Y - _textSize.Y;
 
                     if (align == Alignment.MiddleLeft || align == Alignment.MiddleCenter || align == Alignment.MiddleRight)
-                        p1.y += (Size.y - (TextSize.y - (style.TextPadding.Top + style.TextPadding.Bottom))) / 2;
+                        p1.Y += (Size.Y - (_textSize.Y - (style.TextPadding.Top + style.TextPadding.Bottom))) / 2;
 
                     if (align == Alignment.TopLeft || align == Alignment.MiddleLeft || align == Alignment.BottomLeft)
-                        p1.x += style.TextPadding.Left;
+                        p1.X += style.TextPadding.Left;
 
                     if (align == Alignment.TopRight || align == Alignment.MiddleRight || align == Alignment.BottomRight)
-                        p1.x += Size.x - style.TextPadding.Right;
+                        p1.X += Size.X - style.TextPadding.Right;
 
                     if (align == Alignment.TopCenter || align == Alignment.MiddleCenter || align == Alignment.BottomCenter)
-                        p1.x += Size.x / 2;
+                        p1.X += Size.X / 2;
 
-                    Point subsize = Gui.Renderer.GetTextSize(" ", font);
-                    Gui.Renderer.DrawBox(p1.x, p1.y, 2, subsize.y, ColorInt.FromArgb(opacity, BlinkColor));
+                    var subsize = Gui.Renderer.GetTextSize(" ", font);
+                    Gui.Renderer.DrawBox(p1.X, p1.Y, 2, subsize.Y, ColorInt.FromArgb(opacity, BlinkColor));
 
                 }
 
                 return;
             }
 
-            foreach (TextLine line in Lines)
+            foreach (var line in _lines)
             {
-                int perline = 0;
+                var perline = 0;
 
-                foreach (TextElement element in line.Elements)
+                foreach (var element in line.Elements)
                 {
                     //if (element.Linebreak)
                     //    continue;
@@ -1243,68 +1246,68 @@ namespace Squid
                     p1 = Location;
 
                     if (align == Alignment.TopLeft || align == Alignment.TopCenter || align == Alignment.TopRight)
-                        p1.y += style.TextPadding.Top;
+                        p1.Y += style.TextPadding.Top;
 
                     if (align == Alignment.BottomLeft || align == Alignment.BottomCenter || align == Alignment.BottomRight)
-                        p1.y += Size.y - TextSize.y;
+                        p1.Y += Size.Y - _textSize.Y;
 
                     if (align == Alignment.MiddleLeft || align == Alignment.MiddleCenter || align == Alignment.MiddleRight)
-                        p1.y += (Size.y - (TextSize.y - (style.TextPadding.Top + style.TextPadding.Bottom))) / 2;
+                        p1.Y += (Size.Y - (_textSize.Y - (style.TextPadding.Top + style.TextPadding.Bottom))) / 2;
 
                     if (align == Alignment.TopLeft || align == Alignment.MiddleLeft || align == Alignment.BottomLeft)
-                        p1.x += style.TextPadding.Left;
+                        p1.X += style.TextPadding.Left;
 
                     if (align == Alignment.TopRight || align == Alignment.MiddleRight || align == Alignment.BottomRight)
-                        p1.x += Size.x - line.Width - style.TextPadding.Right;
+                        p1.X += Size.X - line.Width - style.TextPadding.Right;
 
                     if (align == Alignment.TopCenter || align == Alignment.MiddleCenter || align == Alignment.BottomCenter)
-                        p1.x += (Size.x - line.Width) / 2;
+                        p1.X += (Size.X - line.Width) / 2;
 
                     p2 = element.Position + p1;
 
                     element.Rectangle = new Rectangle(p2, size);
 
-                    if (element.IsLink && element.Href == ActiveHref)
-                        Gui.Renderer.DrawBox(p2.x, p2.y, size.x - 1, size.y, ColorInt.FromArgb(opacity, LinkColor));
+                    if (element.IsLink && element.Href == _activeHref)
+                        Gui.Renderer.DrawBox(p2.X, p2.Y, size.X - 1, size.Y, ColorInt.FromArgb(opacity, LinkColor));
 
-                    if (drawCaret && total >= Caret)
+                    if (drawCaret && total >= _caret)
                     {
                         drawCaret = false;
 
                         if (string.IsNullOrEmpty(element.Text))
                         {
-                            Point subsize = Gui.Renderer.GetTextSize(" ", font);
-                            Gui.Renderer.DrawBox(p2.x, p2.y, 2, subsize.y, ColorInt.FromArgb(opacity, BlinkColor));
+                            var subsize = Gui.Renderer.GetTextSize(" ", font);
+                            Gui.Renderer.DrawBox(p2.X, p2.Y, 2, subsize.Y, ColorInt.FromArgb(opacity, BlinkColor));
                         }
                         else
                         {
-                            string substr = element.Text.Substring(0, element.Text.Length - (total - Caret));
+                            var substr = element.Text.Substring(0, element.Text.Length - (total - _caret));
 
                             if (string.IsNullOrEmpty(substr))
                             {
-                                Point subsize = Gui.Renderer.GetTextSize(" ", font);
-                                Gui.Renderer.DrawBox(p2.x, p2.y, 2, subsize.y, ColorInt.FromArgb(opacity, BlinkColor));
+                                var subsize = Gui.Renderer.GetTextSize(" ", font);
+                                Gui.Renderer.DrawBox(p2.X, p2.Y, 2, subsize.Y, ColorInt.FromArgb(opacity, BlinkColor));
                             }
                             else
                             {
-                                Point subsize = Gui.Renderer.GetTextSize(substr, font);
-                                Gui.Renderer.DrawBox(p2.x + subsize.x, p2.y, 2, subsize.y, ColorInt.FromArgb(opacity, BlinkColor));
+                                var subsize = Gui.Renderer.GetTextSize(substr, font);
+                                Gui.Renderer.DrawBox(p2.X + subsize.X, p2.Y, 2, subsize.Y, ColorInt.FromArgb(opacity, BlinkColor));
                             }
                         }
                     }
 
                     if (UseTextColor)
-                        Gui.Renderer.DrawText(element.Text, p2.x, p2.y, font, ColorInt.FromArgb(opacity, TextColor));
+                        Gui.Renderer.DrawText(element.Text, p2.X, p2.Y, font, ColorInt.FromArgb(opacity, TextColor));
                     else
-                        Gui.Renderer.DrawText(element.Text, p2.x, p2.y, font, ColorInt.FromArgb(opacity, element.Color.HasValue ? (int)element.Color : style.TextColor));
+                        Gui.Renderer.DrawText(element.Text, p2.X, p2.Y, font, ColorInt.FromArgb(opacity, element.Color.HasValue ? (int)element.Color : style.TextColor));
 
                     //    Gui.Renderer.DrawBox(element.Rectangle.Left, element.Rectangle.Top, element.Rectangle.Width, element.Rectangle.Height, -1);
 
                     if (IsSelection && total >= SelectionStart && perline < SelectionEnd && !element.Linebreak)
                     {
-                        int start = SelectionStart;
-                        int end = SelectionEnd;
-                        int color = ColorInt.FromArgb(0.5f, -1);
+                        var start = SelectionStart;
+                        var end = SelectionEnd;
+                        var color = ColorInt.FromArgb(0.5f, -1);
 
                         //int origin = perline - element.Text.Length;
                         //start = Math.Max(0, origin - start);
@@ -1316,20 +1319,20 @@ namespace Squid
                         //}
                         //else
                         //{
-                        int begin = element.Text.Length - (total - start);
+                        var begin = element.Text.Length - (total - start);
                         if (begin < 0) begin = 0;
 
-                        int len = element.Text.Length - begin - (total - end);
+                        var len = element.Text.Length - begin - (total - end);
                         if (len < 0) len = 0;
                         if (len > element.Text.Length) len = element.Text.Length;
                         if (begin + len > element.Text.Length) len = element.Text.Length - begin;
 
-                        string strOffset = element.Text.Substring(0, begin);
-                        string strSelected = element.Text.Substring(begin, len);
+                        var strOffset = element.Text.Substring(0, begin);
+                        var strSelected = element.Text.Substring(begin, len);
 
-                        Point offset = Gui.Renderer.GetTextSize(strOffset, font);
-                        Point selection = Gui.Renderer.GetTextSize(strSelected, font);
-                        Gui.Renderer.DrawBox(p2.x + offset.x, p2.y, selection.x, selection.y, ColorInt.FromArgb(opacity, SelectionColor));
+                        var offset = Gui.Renderer.GetTextSize(strOffset, font);
+                        var selection = Gui.Renderer.GetTextSize(strSelected, font);
+                        Gui.Renderer.DrawBox(p2.X + offset.X, p2.Y, selection.X, selection.Y, ColorInt.FromArgb(opacity, SelectionColor));
                         //}
                     }
 

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// A generic list that provides events
@@ -87,7 +85,7 @@ namespace Squid
         //     The System.Collections.Generic.IList<T> is read-only.
         public new void Insert(int index, T item)
         {
-            ListEventArgs<T> args = new ListEventArgs<T>(item);
+            var args = new ListEventArgs<T>(item);
 
             OnBeforeItemAdded(this, args);
 
@@ -157,7 +155,7 @@ namespace Squid
         //     The System.Collections.Generic.IList<T> is read-only.
         public new void RemoveAt(int index)
         {
-            ListEventArgs<T> args = new ListEventArgs<T>(this[index]);
+            var args = new ListEventArgs<T>(this[index]);
 
             OnBeforeItemRemoved(this, args);
 
@@ -186,7 +184,7 @@ namespace Squid
         //     The System.Collections.Generic.ICollection<T> is read-only.
         public new void Add(T item)
         {
-            ListEventArgs<T> args = new ListEventArgs<T>(item);
+            var args = new ListEventArgs<T>(item);
 
             OnBeforeItemAdded(this, args);
 
@@ -211,7 +209,7 @@ namespace Squid
         //     The System.Collections.Generic.ICollection<T> is read-only.
         public new void AddRange(IEnumerable<T> list)
         {
-            foreach (T t in list)
+            foreach (var t in list)
                 Add(t);
         }
 
@@ -247,13 +245,13 @@ namespace Squid
         //     The System.Collections.Generic.ICollection<T> is read-only.
         public new bool Remove(T item)
         {
-            ListEventArgs<T> args = new ListEventArgs<T>(item);
+            var args = new ListEventArgs<T>(item);
 
             OnBeforeItemRemoved(this, args);
 
             if (!args.Cancel)
             {
-                bool happened = base.Remove(item);
+                var happened = base.Remove(item);
 
                 if (happened)
                     OnItemRemoved(this, args);

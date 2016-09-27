@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Interfaces
 {
     /// <summary>
     /// Interface IControlContainer

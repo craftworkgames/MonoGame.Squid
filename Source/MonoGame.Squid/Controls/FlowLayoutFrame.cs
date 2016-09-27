@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A container that auto-layouts its children.
@@ -11,7 +11,7 @@ namespace Squid
     [Toolbox]
     public class FlowLayoutFrame : Frame
     {
-        private Point lastSize;
+        private Point _lastSize;
 
         /// <summary>
         /// Gets or sets the flow direction.
@@ -64,20 +64,20 @@ namespace Squid
 
         private void LayoutLeftToRight()
         {
-            int x = HSpacing;
-            int y = VSpacing;
-            int max = 0;
-            int c = 0;
+            var x = HSpacing;
+            var y = VSpacing;
+            var max = 0;
+            var c = 0;
 
-            foreach (Control control in Controls)
+            foreach (var control in Controls)
             {
                 if (!control.Visible) continue;
 
-                if (x + control.Size.x + HSpacing <= Size.x)
+                if (x + control.Size.X + HSpacing <= Size.X)
                 {
                     control.Position = new Point(x, y);
 
-                    x = x + control.Size.x + HSpacing;
+                    x = x + control.Size.X + HSpacing;
                 }
                 else
                 {
@@ -92,10 +92,10 @@ namespace Squid
 
                     control.Position = new Point(x, y);
 
-                    x = x + control.Size.x + HSpacing;
+                    x = x + control.Size.X + HSpacing;
                 }
 
-                max = Math.Max(max, control.Size.y);
+                max = Math.Max(max, control.Size.Y);
 
                 c++;
             }
@@ -103,24 +103,24 @@ namespace Squid
 
         private void LayoutRightToLeft()
         {
-            int x = Size.x;
-            int y = HSpacing;
-            int max = 0;
-            int c = 0;
+            var x = Size.X;
+            var y = HSpacing;
+            var max = 0;
+            var c = 0;
 
-            foreach (Control control in Controls)
+            foreach (var control in Controls)
             {
                 if (!control.Visible) continue;
 
-                if (x - control.Size.x - HSpacing >= HSpacing)
+                if (x - control.Size.X - HSpacing >= HSpacing)
                 {
-                    control.Position = new Point(x - control.Size.x - HSpacing, y);
+                    control.Position = new Point(x - control.Size.X - HSpacing, y);
 
-                    x = x - control.Size.x - HSpacing;
+                    x = x - control.Size.X - HSpacing;
                 }
                 else
                 {
-                    x = Size.x;
+                    x = Size.X;
 
                     if (c > 0)
                     {
@@ -131,10 +131,10 @@ namespace Squid
 
                     control.Position = new Point(x, y);
 
-                    x = x - control.Size.x - HSpacing;
+                    x = x - control.Size.X - HSpacing;
                 }
 
-                max = Math.Max(max, control.Size.y);
+                max = Math.Max(max, control.Size.Y);
 
                 c++;
             }
@@ -142,20 +142,20 @@ namespace Squid
 
         private void LayoutTopToBottom()
         {
-            int x = HSpacing;
-            int y = HSpacing;
-            int max = 0;
-            int c = 0;
+            var x = HSpacing;
+            var y = HSpacing;
+            var max = 0;
+            var c = 0;
 
-            foreach (Control control in Controls)
+            foreach (var control in Controls)
             {
                 if (!control.Visible) continue;
 
-                if (y + control.Size.y + VSpacing <= Size.y)
+                if (y + control.Size.Y + VSpacing <= Size.Y)
                 {
                     control.Position = new Point(x, y);
 
-                    y = y + control.Size.y + VSpacing;
+                    y = y + control.Size.Y + VSpacing;
                 }
                 else
                 {
@@ -170,10 +170,10 @@ namespace Squid
 
                     control.Position = new Point(x, y);
 
-                    y = y + control.Size.y + VSpacing;
+                    y = y + control.Size.Y + VSpacing;
                 }
 
-                max = Math.Max(max, control.Size.x);
+                max = Math.Max(max, control.Size.X);
 
                 c++;
             }
@@ -181,24 +181,24 @@ namespace Squid
 
         private void LayoutBottomToTop()
         {
-            int x = HSpacing;
-            int y = Size.y;
-            int max = 0;
-            int c = 0;
+            var x = HSpacing;
+            var y = Size.Y;
+            var max = 0;
+            var c = 0;
 
-            foreach (Control control in Controls)
+            foreach (var control in Controls)
             {
                 if (!control.Visible) continue;
 
-                if (y - control.Size.y - VSpacing >= VSpacing)
+                if (y - control.Size.Y - VSpacing >= VSpacing)
                 {
-                    control.Position = new Point(x, y - control.Size.y - VSpacing);
+                    control.Position = new Point(x, y - control.Size.Y - VSpacing);
 
-                    y = y - control.Size.y - VSpacing;
+                    y = y - control.Size.Y - VSpacing;
                 }
                 else
                 {
-                    y = Size.y;
+                    y = Size.Y;
 
                     if (c > 0)
                     {
@@ -209,10 +209,10 @@ namespace Squid
 
                     control.Position = new Point(x, y);
 
-                    y = y - control.Size.y - VSpacing;
+                    y = y - control.Size.Y - VSpacing;
                 }
 
-                max = Math.Max(max, control.Size.x);
+                max = Math.Max(max, control.Size.X);
 
                 c++;
             }
@@ -220,10 +220,10 @@ namespace Squid
 
         protected override void OnUpdate()
         {
-            if (!lastSize.Equals(Size))
+            if (!_lastSize.Equals(Size))
             {
                 Refresh();
-                lastSize = Size;
+                _lastSize = Size;
             }
         }
 

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A ScrollBar.Can be used vertically and horizontally.
@@ -94,7 +93,7 @@ namespace Squid
             {
                 Slider.Orientation = value;
 
-                if (Slider.Orientation == Squid.Orientation.Horizontal)
+                if (Slider.Orientation == Orientation.Horizontal)
                 {
                     ButtonUp.Dock = DockStyle.Left;
                     ButtonDown.Dock = DockStyle.Right;
@@ -162,10 +161,10 @@ namespace Squid
                 Slider.Value += 1f / Slider.Steps;
             else
             {
-                if (Orientation == Squid.Orientation.Horizontal)
-                    Slider.Value += 1f / Slider.Size.x;
+                if (Orientation == Orientation.Horizontal)
+                    Slider.Value += 1f / Slider.Size.X;
                 else
-                    Slider.Value += 1f / Slider.Size.y;
+                    Slider.Value += 1f / Slider.Size.Y;
             }
         }
 
@@ -177,10 +176,10 @@ namespace Squid
                 Slider.Value -= 1f / Slider.Steps;
             else
             {
-                if (Orientation == Squid.Orientation.Horizontal)
-                    Slider.Value -= 1f / Slider.Size.x;
+                if (Orientation == Orientation.Horizontal)
+                    Slider.Value -= 1f / Slider.Size.X;
                 else
-                    Slider.Value -= 1f / Slider.Size.y;
+                    Slider.Value -= 1f / Slider.Size.Y;
             }
         }
 

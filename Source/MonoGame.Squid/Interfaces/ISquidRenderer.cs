@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using MonoGame.Squid.Structs;
 
-namespace Squid
+namespace MonoGame.Squid.Interfaces
 {
     /// <summary>
     /// Interface ISquidRenderer

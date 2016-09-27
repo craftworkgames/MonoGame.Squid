@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
 using System.Globalization;
-using System.Runtime.InteropServices;
 
-namespace Squid
+namespace MonoGame.Squid.Structs
 {
     /// <summary>
     /// Struct Point
@@ -23,8 +20,8 @@ namespace Squid
         /// <param name="pt">The pt.</param>
         public Point(Point pt)
         {
-            this._x = pt.x;
-            this._y = pt.y;
+            this._x = pt.X;
+            this._y = pt.Y;
         }
 
         /// <summary>
@@ -46,7 +43,7 @@ namespace Squid
         /// <returns>The result of the operator.</returns>
         public static Point operator +(Point p1, Point p2)
         {
-            return new Point(p1.x + p2.x, p1.y + p2.y);
+            return new Point(p1.X + p2.X, p1.Y + p2.Y);
         }
 
         /// <summary>
@@ -57,7 +54,7 @@ namespace Squid
         /// <returns>The result of the operator.</returns>
         public static Point operator -(Point p1, Point p2)
         {
-            return new Point(p1.x - p2.x, p1.y - p2.y);
+            return new Point(p1.X - p2.X, p1.Y - p2.Y);
         }
 
         /// <summary>
@@ -68,7 +65,7 @@ namespace Squid
         /// <returns>The result of the operator.</returns>
         public static bool operator ==(Point p1, Point p2)
         {
-            return ((p1.x == p2.x) && (p1.y == p2.y));
+            return ((p1.X == p2.X) && (p1.Y == p2.Y));
         }
 
         /// <summary>
@@ -90,7 +87,7 @@ namespace Squid
         /// <returns>The result of the operator.</returns>
         public static Point operator *(Point a, int b)
         {
-            return new Point(a.x * b, a.y * b);
+            return new Point(a.X * b, a.Y * b);
         }
 
         /// <summary>
@@ -101,7 +98,7 @@ namespace Squid
         /// <returns>The result of the operator.</returns>
         public static Point operator /(Point a, int b)
         {
-            return new Point(a.x / b, a.y / b);
+            return new Point(a.X / b, a.Y / b);
         }
 
         /// <summary>
@@ -112,7 +109,7 @@ namespace Squid
         /// <returns>The result of the operator.</returns>
         public static Point operator *(Point a, float b)
         {
-            return new Point((int)((float)a.x * b), (int)((float)a.y * b));
+            return new Point((int)((float)a.X * b), (int)((float)a.Y * b));
         }
 
         /// <summary>
@@ -123,7 +120,7 @@ namespace Squid
         /// <returns>The result of the operator.</returns>
         public static Point operator /(Point a, float b)
         {
-            return new Point((int)((float)a.x / b), (int)((float)a.y / b));
+            return new Point((int)((float)a.X / b), (int)((float)a.Y / b));
         }
 
         /// <summary>
@@ -140,7 +137,7 @@ namespace Squid
         /// Gets or sets the x.
         /// </summary>
         /// <value>The x.</value>
-        public int x
+        public int X
         {
             get { return _x; }
             set { _x = value; }
@@ -150,7 +147,7 @@ namespace Squid
         /// Gets or sets the y.
         /// </summary>
         /// <value>The y.</value>
-        public int y
+        public int Y
         {
             get { return _y; }
             set { _y = value; }
@@ -166,7 +163,7 @@ namespace Squid
             if (!(obj is Point))
                 return false;
 
-            Point size = (Point)obj;
+            var size = (Point)obj;
             return ((size._x == this._x) && (size._y == this._y));
         }
 
@@ -185,7 +182,7 @@ namespace Squid
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return string.Format("{0}; {1}", x, y);
+            return string.Format("{0}; {1}", X, Y);
         }
 
         /// <summary>
@@ -197,8 +194,8 @@ namespace Squid
         /// <returns>Point.</returns>
         public static Point EaseTo(Point start, Point end, float divisor)
         {
-            float x = ((float)end.x - (float)start.x) / divisor;
-            float y = ((float)end.y - (float)start.y) / divisor;
+            var x = ((float)end.X - (float)start.X) / divisor;
+            var y = ((float)end.Y - (float)start.Y) / divisor;
 
             return start + new Point((int)x, (int)y);
         }
@@ -250,7 +247,7 @@ namespace Squid
             if (!(value is string))
                 return base.ConvertFrom(context, culture, value);
 
-            string str = ((string)value).Trim();
+            var str = ((string)value).Trim();
 
             if (str.Length == 0)
                 return null;
@@ -258,11 +255,11 @@ namespace Squid
             if (culture == null)
                 culture = CultureInfo.CurrentCulture;
 
-            string[] arr = str.Split(new char[2] { '|', ';' }, StringSplitOptions.RemoveEmptyEntries);
-            int[] numArray = new int[arr.Length];
-            TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
+            var arr = str.Split(new char[2] { '|', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var numArray = new int[arr.Length];
+            var converter = TypeDescriptor.GetConverter(typeof(int));
 
-            for (int i = 0; i < numArray.Length; i++)
+            for (var i = 0; i < numArray.Length; i++)
                 numArray[i] = (int)converter.ConvertFromString(context, culture, arr[i]);
 
             if (numArray.Length != 2)
@@ -287,16 +284,16 @@ namespace Squid
 
             if ((destinationType == typeof(string)) && (value is Point))
             {
-                Point size = (Point)value;
+                var size = (Point)value;
                 if (culture == null)
                     culture = CultureInfo.CurrentCulture;
 
-                string separator = "; ";
-                TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
-                string[] strArray = new string[2];
-                int num = 0;
-                strArray[num++] = converter.ConvertToString(context, culture, size.x);
-                strArray[num++] = converter.ConvertToString(context, culture, size.y);
+                var separator = "; ";
+                var converter = TypeDescriptor.GetConverter(typeof(int));
+                var strArray = new string[2];
+                var num = 0;
+                strArray[num++] = converter.ConvertToString(context, culture, size.X);
+                strArray[num++] = converter.ConvertToString(context, culture, size.Y);
                 return string.Join(separator, strArray);
             }
 

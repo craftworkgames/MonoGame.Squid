@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
-using System.Collections;
-using System.ComponentModel;
+using MonoGame.Squid.Controls;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// Helper class used for Reflection.
@@ -15,26 +13,26 @@ namespace Squid
         /// <summary>
         /// The assemblies
         /// </summary>
-        private static Dictionary<string, Assembly> Assemblies = new Dictionary<string, Assembly>();
+        private static readonly Dictionary<string, Assembly> _assemblies = new Dictionary<string, Assembly>();
         /// <summary>
         /// The type cache
         /// </summary>
-        private static Dictionary<Type, List<Type>> TypeCache = new Dictionary<Type, List<Type>>();
+        private static readonly Dictionary<Type, List<Type>> _typeCache = new Dictionary<Type, List<Type>>();
 
         /// <summary>
         /// The cache
         /// </summary>
-        private static Dictionary<Type, Dictionary<Type, object>> Cache = new Dictionary<Type, Dictionary<Type, object>>();
+        private static Dictionary<Type, Dictionary<Type, object>> _cache = new Dictionary<Type, Dictionary<Type, object>>();
         
         /// <summary>
         /// The properties
         /// </summary>
-        private static Dictionary<Type, PropertyInfo[]> Properties = new Dictionary<Type, PropertyInfo[]>();
+        private static readonly Dictionary<Type, PropertyInfo[]> _properties = new Dictionary<Type, PropertyInfo[]>();
 
         /// <summary>
         /// The fields
         /// </summary>
-        private static Dictionary<Type, FieldInfo[]> Fields = new Dictionary<Type, FieldInfo[]>();
+        private static readonly Dictionary<Type, FieldInfo[]> _fields = new Dictionary<Type, FieldInfo[]>();
 
         //public static Mapping<T> GetMapping<T>(Type type) where T : Attribute
         //{
@@ -99,9 +97,9 @@ namespace Squid
         /// <returns>PropertyInfo[][].</returns>
         public static PropertyInfo[] GetProperties(Type type)
         {
-            if (!Properties.ContainsKey(type))
-                Properties.Add(type, type.GetProperties());
-            return Properties[type];
+            if (!_properties.ContainsKey(type))
+                _properties.Add(type, type.GetProperties());
+            return _properties[type];
         }
 
         /// <summary>
@@ -121,9 +119,9 @@ namespace Squid
         /// <returns>PropertyInfo[][].</returns>
         public static FieldInfo[] GetFields(Type type)
         {
-            if (!Fields.ContainsKey(type))
-                Fields.Add(type, type.GetFields());
-            return Fields[type];
+            if (!_fields.ContainsKey(type))
+                _fields.Add(type, type.GetFields());
+            return _fields[type];
         }
 
         /// <summary>
@@ -134,7 +132,7 @@ namespace Squid
         /// <returns>System.Object.</returns>
         public static object GetFieldValue(object obj, string name)
         {
-            FieldInfo field = obj.GetType().GetField(name);
+            var field = obj.GetType().GetField(name);
 
             if (field != null)
                 return field.GetValue(obj);
@@ -151,10 +149,10 @@ namespace Squid
             if (assemblies == null)
                 return;
 
-            foreach (Assembly assembly in assemblies)
+            foreach (var assembly in assemblies)
             {
-                if (!Assemblies.ContainsKey(assembly.FullName))
-                    Assemblies.Add(assembly.FullName, assembly);
+                if (!_assemblies.ContainsKey(assembly.FullName))
+                    _assemblies.Add(assembly.FullName, assembly);
             }
         }
 
@@ -166,7 +164,7 @@ namespace Squid
         /// <returns>``0.</returns>
         public static T GetAttribute<T>(Type type) where T : Attribute
         {
-            object[] atts = type.GetCustomAttributes(typeof(T), false);
+            var atts = type.GetCustomAttributes(typeof(T), false);
             if (atts.Length > 0)
                 return (T)atts[0];
             return null;
@@ -181,7 +179,7 @@ namespace Squid
         /// <returns>``0.</returns>
         public static T GetAttribute<T>(Type type, bool inherit) where T : Attribute
         {
-            object[] atts = type.GetCustomAttributes(typeof(T), inherit);
+            var atts = type.GetCustomAttributes(typeof(T), inherit);
             if (atts.Length > 0)
                 return (T)atts[0];
             return null;
@@ -195,11 +193,11 @@ namespace Squid
         public static Type GetType(string name)
         {
             Type result = null;
-            Assembly main = Assembly.GetAssembly(typeof(Squid.Control));
+            var main = Assembly.GetAssembly(typeof(Control));
             result = main.GetType(name);
             if (result != null) return result;
 
-            foreach (Assembly assembly in Assemblies.Values)
+            foreach (var assembly in _assemblies.Values)
             {
                 result = assembly.GetType(name);
                 if (result != null) return result;
@@ -215,22 +213,22 @@ namespace Squid
         /// <returns>List{Type}.</returns>
         public static List<Type> GetTypes(Type required)
         {
-            if (TypeCache.ContainsKey(required))
-                return TypeCache[required];
+            if (_typeCache.ContainsKey(required))
+                return _typeCache[required];
 
-            List<Type> types = new List<Type>();
-            List<Type> result = new List<Type>();
+            var types = new List<Type>();
+            var result = new List<Type>();
 
-            Assembly main = Assembly.GetAssembly(required);
+            var main = Assembly.GetAssembly(required);
             types.AddRange(main.GetTypes());
 
-            foreach (Assembly assembly in Assemblies.Values)
+            foreach (var assembly in _assemblies.Values)
             {
                 if (main.FullName != assembly.FullName)
                     types.AddRange(assembly.GetTypes());
             }
 
-            foreach (Type type in types)
+            foreach (var type in types)
             {
                 if (required.IsInterface && required.IsAssignableFrom(type))
                     result.Add(type);
@@ -238,7 +236,7 @@ namespace Squid
                     result.Add(type);
             }
 
-            TypeCache.Add(required, result);
+            _typeCache.Add(required, result);
 
             return result;
         }

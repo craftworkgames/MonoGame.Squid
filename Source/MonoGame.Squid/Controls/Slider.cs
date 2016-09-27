@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Util;
 
-namespace Squid
+namespace MonoGame.Squid.Controls
 {
     /// <summary>
     /// A Slider control. Also known as TrackBar.
@@ -11,7 +13,7 @@ namespace Squid
     {
         private float _value;
         private float _easeScroll;
-        private Point Offset;
+        private Point _offset;
 
         /// <summary>
         /// Raised when [value changed].
@@ -129,12 +131,12 @@ namespace Squid
         {
             if (args.Button > 0) return;
 
-            Point position = Gui.MousePosition - Location - Button.Size / 2;
+            var position = Gui.MousePosition - Location - Button.Size / 2;
 
             if (Orientation == Orientation.Vertical)
-                Value = Minimum + (Maximum - Minimum) * position.y / (Size.y - Button.Size.y);
+                Value = Minimum + (Maximum - Minimum) * position.Y / (Size.Y - Button.Size.Y);
             else
-                Value = Minimum + (Maximum - Minimum) * position.x / (Size.x - Button.Size.x);
+                Value = Minimum + (Maximum - Minimum) * position.X / (Size.X - Button.Size.X);
 
             Snap();
         }
@@ -143,7 +145,7 @@ namespace Squid
         {
             if (Steps > 1)
             {
-                float snap = 1f / Steps;
+                var snap = 1f / Steps;
                 Value = (float)Math.Ceiling(_value / snap) * snap;
             }
         }
@@ -152,14 +154,14 @@ namespace Squid
         {
             if (args.Button > 0) return;
 
-            Offset = Gui.MousePosition - sender.Location;
+            _offset = Gui.MousePosition - sender.Location;
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
 
-            Desktop root = Desktop;
+            var root = Desktop;
             if (root == null) return;
 
             if (AutoScale)
@@ -168,23 +170,23 @@ namespace Squid
 
                 if (Orientation == Orientation.Vertical)
                 {
-                    int size = Size.y;// (int)(Size.y - Button.Margin.Top - Button.Margin.Bottom);
-                    int actualSize = (int)((float)size * Scale);
+                    var size = Size.Y;// (int)(Size.y - Button.Margin.Top - Button.Margin.Bottom);
+                    var actualSize = (int)((float)size * Scale);
 
                     if (MinHandleSize > 0 && actualSize < MinHandleSize)
                         Scale = (float)MinHandleSize / (float)size;
                     
-                    Button.Size = new Point(Button.Size.x, (int)(size * Scale));
+                    Button.Size = new Point(Button.Size.X, (int)(size * Scale));
                 }
                 else
                 {
-                    int size = Size.x;// (int)(Size.y - Button.Margin.Top - Button.Margin.Bottom);
-                    int actualSize = (int)((float)size * Scale);
+                    var size = Size.X;// (int)(Size.y - Button.Margin.Top - Button.Margin.Bottom);
+                    var actualSize = (int)((float)size * Scale);
 
                     if (MinHandleSize > 0 && actualSize < MinHandleSize)
                         Scale = MinHandleSize / size;
 
-                    Button.Size = new Point((int)(size * Scale), Button.Size.y);
+                    Button.Size = new Point((int)(size * Scale), Button.Size.Y);
                 }
             }
 
@@ -194,27 +196,27 @@ namespace Squid
             {
                 if (!(Scale >= 1 && AutoScale))
                 {
-                    Point position = Gui.MousePosition - Location;
+                    var position = Gui.MousePosition - Location;
 
                     if (Orientation == Orientation.Vertical)
                     {
-                        position.x = Button.Position.x;
-                        position.y -= Offset.y;
-                        position.y = Math.Max(0, Math.Min(Size.y - Button.Size.y, position.y));
+                        position.X = Button.Position.X;
+                        position.Y -= _offset.Y;
+                        position.Y = Math.Max(0, Math.Min(Size.Y - Button.Size.Y, position.Y));
 
                         Button.Position = position;
 
-                        Value = Minimum + (Maximum - Minimum) * position.y / (Size.y - Button.Size.y);
+                        Value = Minimum + (Maximum - Minimum) * position.Y / (Size.Y - Button.Size.Y);
                     }
                     else
                     {
-                        position.y = Button.Position.y;
-                        position.x -= Offset.x;
-                        position.x = Math.Max(0, Math.Min(Size.x - Button.Size.x, position.x));
+                        position.Y = Button.Position.Y;
+                        position.X -= _offset.X;
+                        position.X = Math.Max(0, Math.Min(Size.X - Button.Size.X, position.X));
 
                         Button.Position = position;
 
-                        Value = Minimum + (Maximum - Minimum) * position.x / (Size.x - Button.Size.x);
+                        Value = Minimum + (Maximum - Minimum) * position.X / (Size.X - Button.Size.X);
                     }
 
                     Snap();
@@ -226,7 +228,7 @@ namespace Squid
             {
                 Snap();
 
-                float m = _value;
+                var m = _value;
 
                 if (Ease)
                 {
@@ -238,20 +240,20 @@ namespace Squid
                     m = (_value - Minimum) / (Maximum - Minimum);
                 }
 
-                Point end = Point.Zero;
+                var end = Point.Zero;
 
                 if (Orientation == Orientation.Vertical)
                 {
-                    int size = Size.y;// (int)(Size.y - Button.Margin.Top - Button.Margin.Bottom);
-                    int y = (int)(m * (size - Button.Size.y));
-                    end = new Point(Button.Position.x, y);
+                    var size = Size.Y;// (int)(Size.y - Button.Margin.Top - Button.Margin.Bottom);
+                    var y = (int)(m * (size - Button.Size.Y));
+                    end = new Point(Button.Position.X, y);
 
                     Button.Position = end;
                 }
                 else
                 {
-                    int x = (int)(m * (Size.x - Button.Size.x));
-                    end = new Point(x, Button.Position.y);
+                    var x = (int)(m * (Size.X - Button.Size.X));
+                    end = new Point(x, Button.Position.Y);
 
                     Button.Position = end;
                 }

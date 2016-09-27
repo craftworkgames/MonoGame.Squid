@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Squid.Xml;
+using MonoGame.Squid.Skinning;
+using MonoGame.Squid.Structs;
+using MonoGame.Squid.Xml;
 
-namespace Squid
+namespace MonoGame.Squid.Util
 {
     /// <summary>
     /// A TextElement. This class is used by the internal Text layout engine.
@@ -91,32 +91,32 @@ namespace Squid
         public int CharLength;
     }
 
-    internal static class BBCode
+    internal static class BbCode
     {
-        private static Regex TagB;
-        private static Regex TagURL;
-        private static Regex TagIMG;
-        private static Regex TagColor;
-        private static Regex TagFont;
-        private static Regex TagCTRL1;
+        private static readonly Regex _tagB;
+        private static readonly Regex _tagUrl;
+        private static readonly Regex _tagImg;
+        private static readonly Regex _tagColor;
+        private static readonly Regex _tagFont;
+        private static readonly Regex _tagCtrl1;
 
-        private static Xml.XmlReader reader;
+        private static Xml.XmlReader _reader;
 
-        static BBCode()
+        static BbCode()
         {
-            TagB = new Regex(@"\[b\](.+?)\[/b\]");
-            TagURL = new Regex(@"\[url\=([^\]]+)\]([^\]]+)\[/url\]");
-            TagIMG = new Regex(@"\[img\]([^\]]+)\[/img\]");
-            TagColor = new Regex(@"\[color\=([^\]]+)\]([^\]]+)\[/color\]");
-            TagFont = new Regex(@"\[font\=([^\]]+)\]([^\]]+)\[/font\]");
-            TagCTRL1 = new Regex(@"\[ctrl\=([^\]]+)\/]");
+            _tagB = new Regex(@"\[b\](.+?)\[/b\]");
+            _tagUrl = new Regex(@"\[url\=([^\]]+)\]([^\]]+)\[/url\]");
+            _tagImg = new Regex(@"\[img\]([^\]]+)\[/img\]");
+            _tagColor = new Regex(@"\[color\=([^\]]+)\]([^\]]+)\[/color\]");
+            _tagFont = new Regex(@"\[font\=([^\]]+)\]([^\]]+)\[/font\]");
+            _tagCtrl1 = new Regex(@"\[ctrl\=([^\]]+)\/]");
         }
 
-        private static string UnescapeXML(string s)
+        private static string UnescapeXml(string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
 
-            string returnString = s;
+            var returnString = s;
             returnString = returnString.Replace("&apos;", "'");
             returnString = returnString.Replace("&quot;", "\"");
             returnString = returnString.Replace("&gt;", ">");
@@ -126,11 +126,11 @@ namespace Squid
             return returnString;
         }
 
-        private static string EscapeXML(string s)
+        private static string EscapeXml(string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
 
-            string returnString = s;
+            var returnString = s;
             returnString = returnString.Replace("&", "&amp;");
             returnString = returnString.Replace("'", "&apos;");
             returnString = returnString.Replace("\"", "&quot;");
@@ -145,33 +145,33 @@ namespace Squid
         /// </summary>
         /// <param name="str">A string formatted in BBCode</param>
         /// <returns>The HTML representation of the BBCode string</returns>
-        private static string ConvertBBCodeToHTML(string str)
+        private static string ConvertBbCodeToHtml(string str)
         {
             if (string.IsNullOrEmpty(str)) return string.Empty;
 
             // format the bold tags: [b][/b]
             // becomes: <strong></strong>
-            str = TagB.Replace(str, "<b>$1</b>");
+            str = _tagB.Replace(str, "<b>$1</b>");
 
             // format the url tags: [url=www.website.com]my site[/url]
             // becomes: <a href="www.website.com">my site</a>
-            str = TagURL.Replace(str, "<a href=\"$1\">$2</a>");
+            str = _tagUrl.Replace(str, "<a href=\"$1\">$2</a>");
 
             // format the img tags: [img]www.website.com/img/image.jpeg[/img]
             // becomes: <img src="www.website.com/img/image.jpeg" />
-            str = TagIMG.Replace(str, "<img src=\"$1\" />");
+            str = _tagImg.Replace(str, "<img src=\"$1\" />");
 
-            while (TagCTRL1.Matches(str).Count > 0)
-                str = TagCTRL1.Replace(str, "<control key=\"$1\"/>");
+            while (_tagCtrl1.Matches(str).Count > 0)
+                str = _tagCtrl1.Replace(str, "<control key=\"$1\"/>");
 
             //format the colour tags: [color=red][/color]
             // becomes: <font color="red"></font>
-            while (TagColor.Matches(str).Count > 0)
-                str = TagColor.Replace(str, "<font color=\"$1\">$2</font>");
+            while (_tagColor.Matches(str).Count > 0)
+                str = _tagColor.Replace(str, "<font color=\"$1\">$2</font>");
 
             //format the font tags: [font=fontName][/font]
             // becomes: <font name="fontName"></font>
-            str = TagFont.Replace(str, "<font name=\"$1\">$2</font>");
+            str = _tagFont.Replace(str, "<font name=\"$1\">$2</font>");
 
             // lastly, replace any new line characters with <br />
             str = str.Replace("\r\n", "<br/>");
@@ -185,10 +185,10 @@ namespace Squid
             if (string.IsNullOrEmpty(text)) return new List<TextElement>();
 
             if (enabled)
-                text = ConvertBBCodeToHTML(text);
+                text = ConvertBbCodeToHtml(text);
             else
             {
-                text = EscapeXML(text);
+                text = EscapeXml(text);
 
                 text = text.Replace("\r\n", "<br/>");
                 text = text.Replace("\n", "<br/>");
@@ -197,33 +197,33 @@ namespace Squid
                 text = text.Replace("&quot;n", "<br/>");
             }
 
-            TextElement element = new TextElement { Font = style.Font, Color = style.TextColor };
-            TextElement lastElement = new TextElement { Font = style.Font, Color = style.TextColor };
-            List<TextElement> result = new List<TextElement>();
+            var element = new TextElement { Font = style.Font, Color = style.TextColor };
+            var lastElement = new TextElement { Font = style.Font, Color = style.TextColor };
+            var result = new List<TextElement>();
 
-            if (reader == null)
-                reader = new Xml.XmlReader(text);
+            if (_reader == null)
+                _reader = new Xml.XmlReader(text);
             else
-                reader.New(text);
+                _reader.New(text);
 
-            while (reader.Read())
+            while (_reader.Read())
             {
-                switch (reader.NodeType)
+                switch (_reader.NodeType)
                 {
                     case XmlNodeType.Element:
 
-                        switch (reader.Name.ToLower())
+                        switch (_reader.Name.ToLower())
                         {
                             case "control":
-                                if (reader.HasAttributes)
+                                if (_reader.HasAttributes)
                                 {
-                                    while (reader.MoveToNextAttribute())
+                                    while (_reader.MoveToNextAttribute())
                                     {
-                                        if (reader.Name.Equals("key"))
+                                        if (_reader.Name.Equals("key"))
                                         {
-                                            element.Control = reader.Value;
+                                            element.Control = _reader.Value;
                                         }
-                                        else if (reader.Name.Equals("data"))
+                                        else if (_reader.Name.Equals("data"))
                                         {
                                             // element.Data = reader.Value;
                                         }
@@ -235,25 +235,25 @@ namespace Squid
 
                                 break;
                             case "font":
-                                if (reader.HasAttributes)
+                                if (_reader.HasAttributes)
                                 {
                                     lastElement.Color = element.Color;
                                     lastElement.Font = element.Font;
 
-                                    while (reader.MoveToNextAttribute())
+                                    while (_reader.MoveToNextAttribute())
                                     {
-                                        if (reader.Name.Equals("name"))
+                                        if (_reader.Name.Equals("name"))
                                         {
-                                            element.Font = reader.Value;
+                                            element.Font = _reader.Value;
                                         }
-                                        else if (reader.Name.Equals("color"))
+                                        else if (_reader.Name.Equals("color"))
                                         {
 
-                                            int color = element.Color.Value;
+                                            var color = element.Color.Value;
 
-                                            if (int.TryParse(reader.Value, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out color))
+                                            if (int.TryParse(_reader.Value, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out color))
                                                 element.Color = color;
-                                            else if (int.TryParse(reader.Value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out color))
+                                            else if (int.TryParse(_reader.Value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out color))
                                                 element.Color = color;
                                         }
                                     }
@@ -261,12 +261,12 @@ namespace Squid
 
                                 break;
                             case "a":
-                                if (reader.HasAttributes)
+                                if (_reader.HasAttributes)
                                 {
-                                    while (reader.MoveToNextAttribute())
+                                    while (_reader.MoveToNextAttribute())
                                     {
-                                        if (reader.Name.Equals("href"))
-                                            element.Href = reader.Value;
+                                        if (_reader.Name.Equals("href"))
+                                            element.Href = _reader.Value;
                                     }
                                 }
                                 break;
@@ -283,7 +283,7 @@ namespace Squid
                         break;
 
                     case XmlNodeType.EndElement:
-                        switch (reader.Name.ToLower())
+                        switch (_reader.Name.ToLower())
                         {
                             case "control":
                                 element.Font = lastElement.Font;
@@ -300,9 +300,9 @@ namespace Squid
 
                         break;
                     case XmlNodeType.Text:
-                        if (reader.Value.Length > 0)
+                        if (_reader.Value.Length > 0)
                         {
-                            element.Text = UnescapeXML(reader.Value);
+                            element.Text = UnescapeXml(_reader.Value);
                             result.Add(element);
 
                             element = new TextElement(element);

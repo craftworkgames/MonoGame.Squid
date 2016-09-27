@@ -5,7 +5,8 @@ using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Squid;
+using MonoGame.Squid.Interfaces;
+using MonoGame.Squid.Util;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace MonoGame.Squid
@@ -126,20 +127,20 @@ namespace MonoGame.Squid
             return _fontIndex;
         }
 
-        public global::Squid.Point GetTextSize(string text, int font)
+        public global::MonoGame.Squid.Structs.Point GetTextSize(string text, int font)
         {
             if (string.IsNullOrEmpty(text))
-                return new global::Squid.Point();
+                return new global::MonoGame.Squid.Structs.Point();
 
             var f = _fonts[font];
             var size = f.MeasureString(text);
-            return new global::Squid.Point((int)size.X, (int)size.Y);
+            return new global::MonoGame.Squid.Structs.Point((int)size.X, (int)size.Y);
         }
 
-        public global::Squid.Point GetTextureSize(int texture)
+        public global::MonoGame.Squid.Structs.Point GetTextureSize(int texture)
         {
             var tex = _textures[texture];
-            return new global::Squid.Point(tex.Width, tex.Height);
+            return new global::MonoGame.Squid.Structs.Point(tex.Width, tex.Height);
         }
 
         public void DrawBox(int x, int y, int w, int h, int color)
@@ -157,7 +158,7 @@ namespace MonoGame.Squid
             _batch.DrawString(f, text, new Vector2(x, y), ColorFromtInt32(color));
         }
 
-        public void DrawTexture(int texture, int x, int y, int w, int h, global::Squid.Rectangle rect, int color)
+        public void DrawTexture(int texture, int x, int y, int w, int h, global::MonoGame.Squid.Structs.Rectangle rect, int color)
         {
             if (!_textures.ContainsKey(texture))
                 return;
