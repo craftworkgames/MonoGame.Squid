@@ -101,7 +101,8 @@ namespace Demo.SampleControls
 
             //Animation.Stop();
             //Animation.Custom(FadeAndClose(sender));
-            //Close();
+            Result = (DialogResult)sender.Tag;
+            Close();
         }
 
         //}

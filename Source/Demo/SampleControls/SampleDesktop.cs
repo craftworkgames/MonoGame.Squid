@@ -629,7 +629,7 @@ namespace Demo.SampleControls
 
         private void lbl_OnLinkClicked(string href)
         {
-            var dialog = MessageBox.Show(new Point(300, 200), "Message Box", href, MessageBoxButtons.OkCancel, this);
+            var dialog = MessageBox.Show(new Point(300, 200), "Message Boafsafassafafsafsx", href, MessageBoxButtons.OkCancel, this);
             dialog.OnResult += (s, r) => dialog.Close();
             //dialog.Animation.Custom(WalkSquare(dialog));
         }
@@ -659,9 +659,18 @@ namespace Demo.SampleControls
 
         private void button_OnMouseClick(Control sender, MouseEventArgs args)
         {
-            var dialog = MessageBox.Show(new Point(300, 200), "Message Box", "This is a modal Dialog.",
+            var dialog = MessageBox.Show(new Point(300, 200), "Message Boafasfafafasafasfx", "This is a modal Dialog.",
                 MessageBoxButtons.OkCancel, this);
-            dialog.OnResult += (s, r) => dialog.Close();
+            dialog.OnResult += Dialog_OnResult;
+        }
+
+        private void Dialog_OnResult(Dialog sender, DialogResult result)
+        {
+            if (result == DialogResult.Ok)
+            {
+                System.Console.WriteLine("Well played");
+            }
+            throw new Exception("helo");
         }
 
         public class MyData
